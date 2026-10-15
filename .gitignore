@@ -1,0 +1,10 @@
+# Ignorar la carpeta de referencia para evitar conflictos de submódulos
+proyecto-equipo-3/
+
+# Ignorar archivos compilados de Java
+*.class
+
+# Ignorar configuraciones de IDEs (opcional, pero buena práctica)
+.vscode/
+.idea/
+*.iml
