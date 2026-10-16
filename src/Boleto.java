@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Boleto {
@@ -14,12 +15,12 @@ public class Boleto {
         this.informacionSala = informacionSala;
         this.informacionFuncion = informacionFuncion;
         if (asientosAsignados != null) {
-         this.asientosAsignados = asientosAsignados;
-       } else {
-        this.asientosAsignados = new ArrayList<>();
-       }
+            this.asientosAsignados = asientosAsignados;
+        } else {
+            this.asientosAsignados = new ArrayList<>();
+        }
         this.metodoPago = metodoPago;
-        this.totalPagado = 0.0;
+        this.totalPagado = this.calcularTotal();
     }
 
     public Pelicula getInformacionPelicula() {
@@ -71,9 +72,37 @@ public class Boleto {
     }
 
     public double calcularTotal() {
-        return this.totalPagado;
+        double suma = 0.0;
+        if (this.asientosAsignados != null) {
+            Iterator<Asiento> iterador = this.asientosAsignados.iterator();
+            while (iterador.hasNext()) {
+                Asiento a = iterador.next();
+                suma = suma + a.getPrecio();
+            }
+        }
+        return suma;
     }
 
     public void imprimirBoleto() {
+        System.out.println("   Boletos A Comprar           ");
+        if (this.informacionPelicula != null) {
+            System.out.println("Pelicula: " + this.informacionPelicula.getTitulo());
+            System.out.println("Clasificacion: " + this.informacionPelicula.getClasificacion());
+        }
+        System.out.println("Sala: " + this.informacionSala);
+        if (this.informacionFuncion != null) {
+            System.out.println("Fecha: " + this.informacionFuncion.getFecha());
+            System.out.println("Horario: " + this.informacionFuncion.getHorarioHrs() + ":" + this.informacionFuncion.getHorarioMin());
+        }
+        System.out.print("Asientos: ");
+        if (this.asientosAsignados != null) {
+            Iterator<Asiento> iterador = this.asientosAsignados.iterator();
+            while (iterador.hasNext()) {
+                Asiento a = iterador.next();
+                System.out.print(a.getIdentificador() + " ");
+            }
+        }
+        System.out.println();
+        System.out.println("Total Pagado: $" + this.totalPagado);
     }
 }

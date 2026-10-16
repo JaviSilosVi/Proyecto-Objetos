@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Funcion {
@@ -67,5 +68,28 @@ public class Funcion {
 
     public void asignarPeliculas(Pelicula peliculaProyectada) {
         this.peliculaProyectada = peliculaProyectada;
+    }
+
+    public void inicializarAsientos() {
+        this.asientos.clear();
+        if (this.sala != null && this.sala.getAsientos() != null) {
+            Iterator<Asiento> iterador = this.sala.getAsientos().iterator();
+            while (iterador.hasNext()) {
+                Asiento plantilla = iterador.next();
+                Asiento nuevo = new Asiento(plantilla.getIdentificador(), plantilla.getTipoAsiento(), plantilla.getPrecio());
+                this.asientos.add(nuevo);
+            }
+        }
+    }
+
+    public Asiento obtenerAsiento(String idAsiento) {
+        Iterator<Asiento> iterador = this.asientos.iterator();
+        while (iterador.hasNext()) {
+            Asiento asientoActual = iterador.next();
+            if (asientoActual.getIdentificador().equalsIgnoreCase(idAsiento)) {
+                return asientoActual;
+            }
+        }
+        return null;
     }
 }

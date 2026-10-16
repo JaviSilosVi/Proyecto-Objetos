@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Sala {
@@ -85,5 +86,104 @@ public class Sala {
         } else {
             return 0;
         }
+    }
+
+    public void agregaAsiento(Asiento asiento) {
+        if (asiento != null) {
+            this.asientos.add(asiento);
+        }
+    }
+
+    public Asiento obtenerAsiento(String idAsiento) {
+        Iterator<Asiento> iterador = this.asientos.iterator();
+        while (iterador.hasNext()) {
+            Asiento asientoActual = iterador.next();
+            if (asientoActual.getIdentificador().equalsIgnoreCase(idAsiento)) {
+                return asientoActual;
+            }
+        }
+        return null;
+    }
+
+    public void generarAsientos(int filas, int asientoPorFila, String tipo, double precio) {
+        this.filas = filas;
+        this.asientosPorFila = asientoPorFila;
+        this.precioBase = precio;
+        this.asientos.clear();
+
+        for (int i = 0; i < filas; i++) {
+            char letraFila = (char) ('A' + i);
+            for (int j = 1; j <= asientoPorFila; j++) {
+                String idAsiento = letraFila + String.valueOf(j);
+                Asiento nuevoAsiento = new Asiento(idAsiento, tipo, precio);
+                this.asientos.add(nuevoAsiento);
+            }
+        }
+    }
+
+    public boolean agregarFuncion(Funcion nuevaFuncion) {
+        if (nuevaFuncion == null) {
+            return false;
+        }
+
+        Iterator<Funcion> iterador = this.programacion.iterator();
+        while (iterador.hasNext()) {
+            Funcion funcionActual = iterador.next();
+            if (funcionActual.getFecha().equals(nuevaFuncion.getFecha())) {
+                if (funcionActual.getHorarioHrs() == nuevaFuncion.getHorarioHrs()) {
+                    System.out.println("Conflicto de horario: ya hay una funcion programada a esa hora.");
+                    return false;
+                }
+            }
+        }
+
+        nuevaFuncion.setSala(this);
+        nuevaFuncion.inicializarAsientos();
+        this.programacion.add(nuevaFuncion);
+        return true;
+    }
+
+    public boolean programarFuncion(Funcion nuevaFuncion) {
+        return this.agregarFuncion(nuevaFuncion);
+    }
+
+    public boolean cancelarFuncion(String fecha, int horarioHrs) {
+        Iterator<Funcion> iterador = this.programacion.iterator();
+        while (iterador.hasNext()) {
+            Funcion funcionActual = iterador.next();
+            if (funcionActual.getFecha().equals(fecha)) {
+                if (funcionActual.getHorarioHrs() == horarioHrs) {
+                    iterador.remove();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean cancelarFuncion(Funcion funcionACancelar) {
+        if (funcionACancelar != null) {
+            return this.cancelarFuncion(funcionACancelar.getFecha(), funcionACancelar.getHorarioHrs());
+        } else {
+            return false;
+        }
+    }
+
+    public boolean modificarFuncion(Funcion funcionActual, Funcion funcionModificada) {
+        if (this.cancelarFuncion(funcionActual)) {
+            return this.agregarFuncion(funcionModificada);
+        } else {
+            return false;
+        }
+    }
+
+    public void mostrarAsientos() {
+        System.out.println("=== Asientos de la sala " + this.idSala + " ===");
+        Iterator<Asiento> iterador = this.asientos.iterator();
+        while (iterador.hasNext()) {
+            Asiento a = iterador.next();
+            System.out.print("[" + a.getIdentificador() + " - " + a.getEstadoAsiento() + "] ");
+        }
+        System.out.println();
     }
 }

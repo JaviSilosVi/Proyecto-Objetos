@@ -44,10 +44,20 @@ public class Asiento {
     }
 
     public boolean reservar() {
-        return true;
+        if (this.estadoAsiento.equalsIgnoreCase("DISPONIBLE")) {
+            this.estadoAsiento = "RESERVADO";
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean vender() {
-        return true;
+        if (!this.estadoAsiento.equalsIgnoreCase("VENDIDO")) {
+            this.estadoAsiento = "VENDIDO";
+            return true;
+        } else {
+            return false;
+        }
     }
 }
