@@ -249,7 +249,7 @@ public class Principal {
     private static void menuGestionarPeliculas(Sistema sistema) {
         int op = 0;
         do {
-            System.out.println("\n--- GESTION DE PELICULAS ---");
+            System.out.println("\nGESTION DE PELICULAS ");
             System.out.println("1. Agregar Pelicula al catalogo");
             System.out.println("2. Ver catalogo completo");
             System.out.println("3. Eliminar Pelicula");
@@ -309,7 +309,7 @@ public class Principal {
     private static void menuGestionarFunciones(Sistema sistema) {
         int op = 0;
         do {
-            System.out.println("\n--- GESTION DE FUNCIONES ---");
+            System.out.println("\nGESTION DE FUNCIONES ");
             System.out.println("1. Programar nueva Funcion");
             System.out.println("2. Ver funciones programadas por Cine");
             System.out.println("3. Volver");
