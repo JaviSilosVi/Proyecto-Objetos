@@ -1,6 +1,5 @@
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Funcion {
     private String fecha;
@@ -8,14 +7,14 @@ public class Funcion {
     private int horarioMin;
     private Pelicula peliculaProyectada;
     private Sala sala;
-    private List<Asiento> asientos;
+    private Map<String, Asiento> asientos;
 
     public Funcion(String fecha, int horarioHrs, int horarioMin, Pelicula peliculaProyectada) {
         this.fecha = fecha;
         this.horarioHrs = horarioHrs;
         this.horarioMin = horarioMin;
         this.peliculaProyectada = peliculaProyectada;
-        this.asientos = new ArrayList<>();
+        this.asientos = new HashMap<>();
     }
 
     public String getFecha() {
@@ -58,11 +57,11 @@ public class Funcion {
         this.sala = sala;
     }
 
-    public List<Asiento> getAsientos() {
+    public Map<String, Asiento> getAsientos() {
         return asientos;
     }
 
-    public void setAsientos(List<Asiento> asientos) {
+    public void setAsientos(Map<String, Asiento> asientos) {
         this.asientos = asientos;
     }
 
@@ -70,25 +69,19 @@ public class Funcion {
         this.peliculaProyectada = peliculaProyectada;
     }
 
-    public void inicializarAsientos() {
+    public void inicializarAsientos(Map<String, Asiento> plantillaAsientos) {
         this.asientos.clear();
-        if (this.sala != null && this.sala.getAsientos() != null) {
-            Iterator<Asiento> iterador = this.sala.getAsientos().iterator();
-            while (iterador.hasNext()) {
-                Asiento plantilla = iterador.next();
+        if (plantillaAsientos != null) {
+            for (Asiento plantilla : plantillaAsientos.values()) {
                 Asiento nuevo = new Asiento(plantilla.getIdentificador(), plantilla.getTipoAsiento(), plantilla.getPrecio());
-                this.asientos.add(nuevo);
+                this.asientos.put(nuevo.getIdentificador(), nuevo);
             }
         }
     }
 
     public Asiento obtenerAsiento(String idAsiento) {
-        Iterator<Asiento> iterador = this.asientos.iterator();
-        while (iterador.hasNext()) {
-            Asiento asientoActual = iterador.next();
-            if (asientoActual.getIdentificador().equalsIgnoreCase(idAsiento)) {
-                return asientoActual;
-            }
+        if (this.asientos != null) {
+            return this.asientos.get(idAsiento);
         }
         return null;
     }

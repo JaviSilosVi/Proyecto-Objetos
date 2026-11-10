@@ -1,25 +1,25 @@
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Principal {
+    private static Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) {
-        // Inicializar el sistema central
         Sistema sistema = new Sistema();
         sistema.inicia();
-
-        // Cargar datos iniciales de prueba para el modelo
         cargarDatosIniciales(sistema);
 
-        Scanner scanner = new Scanner(System.in);
         int opcionPrincipal = 0;
-
         do {
-            System.out.println("  Sistema Gestor De Cines ");
-            System.out.println("1. Abrir Interfaz Grafica");
-            System.out.println("2. Probar Sistema por Consola ");
-            System.out.println("3. Salir");
+            System.out.println("\n==================================================");
+            System.out.println("          SISTEMA DE GESTION DE CINES             ");
+            System.out.println("==================================================");
+            System.out.println("1. Abrir Interfaz Grafica (GUI)");
+            System.out.println("2. Entrar como Administrador");
+            System.out.println("3. Entrar como Cliente");
+            System.out.println("4. Salir");
             System.out.print("Selecciona una opcion: ");
 
             String entrada = scanner.nextLine();
@@ -31,127 +31,240 @@ public class Principal {
 
             switch (opcionPrincipal) {
                 case 1:
+                    System.out.println("\n[GUI] Abriendo ventana de Login...");
                     VentanaLogin login = new VentanaLogin(sistema);
                     login.setVisible(true);
                     break;
-
                 case 2:
-                    menuConsola(sistema, scanner);
+                    menuAdministrador(sistema);
                     break;
-
                 case 3:
-                    System.out.println("\nSaliendo del programa");
+                    menuCliente(sistema);
                     break;
-
+                case 4:
+                    System.out.println("\nSaliendo del programa. ¡Hasta pronto!");
+                    break;
                 default:
-                    System.out.println("Opcion no valida");
+                    System.out.println("Opcion no valida. Intenta de nuevo.");
                     break;
             }
-
-        } while (opcionPrincipal != 3 && opcionPrincipal != 1);
+        } while (opcionPrincipal != 4 && opcionPrincipal != 1);
     }
 
     private static void cargarDatosIniciales(Sistema sistema) {
-        // Administrador inicial
         Administrador admin = new Administrador("Admin Pablo", "1234");
 
-        // Crear películas
         List<String> actores1 = new ArrayList<>();
         actores1.add("Jack Black");
         actores1.add("Dustin Hoffman");
-        Pelicula p1 = new Pelicula("Kung Fu Panda", "1:32", "A", "Animacion / Comedia", "Mark Osborne", actores1, "Po el panda sueña con convertirse en un maestro del kung fu.");
+        Pelicula p1 = new Pelicula("Kung Fu Panda", "1:32", "A", "Animacion / Comedia", "Mark Osborne", actores1, "Po el panda sueña con ser maestro de kung fu.");
 
         List<String> actores2 = new ArrayList<>();
         actores2.add("Robert Downey Jr.");
         actores2.add("Gwyneth Paltrow");
-        Pelicula p2 = new Pelicula("Iron Man 2", "2:04", "B", "Accion / Ciencia Ficcion", "Jon Favreau", actores2, "Tony Stark se enfrenta a nuevas amenazas corporativas y militares.");
+        Pelicula p2 = new Pelicula("Iron Man 2", "2:04", "B", "Accion", "Jon Favreau", actores2, "Tony Stark se enfrenta a nuevas amenazas.");
 
         admin.registraPelicula(p1, sistema);
         admin.registraPelicula(p2, sistema);
 
-        // Crear Cine y Salas
         Cine cine1 = new Cine("Cinepolis Centro");
         Sala sala1 = new Sala("Sala 1");
-        sala1.generarAsientos(3, 4, "TRADICIONAL", 80.0); // 12 asientos
+        sala1.generarAsientos(3, 4, "TRADICIONAL", 80.0);
         cine1.agregaSala("Sala 1", sala1);
         sistema.agregaCine(cine1);
 
-        // Programar función
-        Funcion f1 = new Funcion("2026-10-20", 18, 30, p1);
+        Funcion f1 = new Funcion("2026-11-20", 18, 30, p1);
         sistema.programarFuncion("Cinepolis Centro", "Sala 1", f1);
     }
 
-    private static void menuConsola(Sistema sistema, Scanner scanner) {
-        int opcionRol = 0;
-        do {
-            System.out.println("1. Entrar como Administrador");
-            System.out.println("2. Entrar como Cliente");
-            System.out.println("3. Regresar al Menu Principal");
-            System.out.print("Selecciona tu rol: ");
+    private static void menuAdministrador(Sistema sistema) {
+        Administrador admin = new Administrador("Admin General", "1234");
+        System.out.print("\nIngresa el PIN de Administrador (PIN por defecto: 1234): ");
+        String pin = scanner.nextLine();
 
-            String entrada = scanner.nextLine();
+        if (!admin.validarPin(pin)) {
+            System.out.println("PIN incorrecto. Acceso denegado.");
+            return;
+        }
+
+        int opcion = 0;
+        do {
+            System.out.println("\n========================================");
+            System.out.println("         PANEL DE ADMINISTRACION        ");
+            System.out.println("========================================");
+            System.out.println("1. Gestionar Cines");
+            System.out.println("2. Gestionar Salas");
+            System.out.println("3. Gestionar Peliculas");
+            System.out.println("4. Gestionar Funciones");
+            System.out.println("5. Cerrar Sesion de Administrador");
+            System.out.print("Elige una opcion: ");
+
             try {
-                opcionRol = Integer.parseInt(entrada);
+                opcion = Integer.parseInt(scanner.nextLine());
             } catch (Exception e) {
-                opcionRol = 0;
+                opcion = 0;
             }
 
-            switch (opcionRol) {
+            switch (opcion) {
                 case 1:
-                    menuAdmin(sistema, scanner);
+                    menuGestionarCines(sistema);
                     break;
                 case 2:
-                    menuCliente(sistema, scanner);
+                    menuGestionarSalas(sistema);
                     break;
                 case 3:
-                    System.out.println("Regresando...");
+                    menuGestionarPeliculas(sistema);
+                    break;
+                case 4:
+                    menuGestionarFunciones(sistema);
+                    break;
+                case 5:
+                    System.out.println("Cerrando sesion...");
                     break;
                 default:
                     System.out.println("Opcion no valida.");
                     break;
             }
-        } while (opcionRol != 3);
+        } while (opcion != 5);
     }
 
-    private static void menuAdmin(Sistema sistema, Scanner scanner) {
-        Administrador admin = new Administrador("Admin General", "1234");
-        System.out.print("\nIngresa el PIN de Administrador (PIN por defecto: 1234): ");
-        String pinIngresado = scanner.nextLine();
+    private static void menuGestionarCines(Sistema sistema) {
+        int op = 0;
+        do {
+            System.out.println("\n--- GESTION DE CINES ---");
+            System.out.println("1. Registrar nuevo Cine");
+            System.out.println("2. Listar Cines registrados");
+            System.out.println("3. Eliminar Cine");
+            System.out.println("4. Volver");
+            System.out.print("Opcion: ");
 
-        if (!admin.validarPin(pinIngresado)) {
-            System.out.println("PIN incorrecto. Acceso denegado.");
+            try {
+                op = Integer.parseInt(scanner.nextLine());
+            } catch (Exception e) {
+                op = 0;
+            }
+
+            switch (op) {
+                case 1:
+                    System.out.print("Nombre del nuevo cine: ");
+                    String nombre = scanner.nextLine();
+                    if (sistema.obtenerCine(nombre) == null) {
+                        sistema.agregaCine(new Cine(nombre));
+                        System.out.println("¡Cine '" + nombre + "' registrado con exito en el mapa!");
+                    } else {
+                        System.out.println("Ese cine ya se encuentra registrado.");
+                    }
+                    break;
+                case 2:
+                    System.out.println("\n=== CINES REGISTRADOS ===");
+                    if (sistema.getCines().isEmpty()) {
+                        System.out.println("No hay cines registrados.");
+                    } else {
+                        for (Cine c : sistema.getCines().values()) {
+                            System.out.println("• " + c.getNombreCine() + " (Total de salas: " + c.getSalas().size() + ")");
+                        }
+                    }
+                    break;
+                case 3:
+                    System.out.print("Nombre del cine a eliminar: ");
+                    String cineEliminar = scanner.nextLine();
+                    if (sistema.eliminarCine(cineEliminar)) {
+                        System.out.println("Cine eliminado correctamente.");
+                    } else {
+                        System.out.println("No se encontro un cine con ese nombre.");
+                    }
+                    break;
+                case 4:
+                    break;
+                default:
+                    System.out.println("Opcion no valida.");
+            }
+        } while (op != 4);
+    }
+
+    private static void menuGestionarSalas(Sistema sistema) {
+        System.out.println("\n--- GESTION DE SALAS ---");
+        if (sistema.getCines().isEmpty()) {
+            System.out.println("Primero debes registrar al menos un cine.");
             return;
         }
 
-        System.out.println("Bienvenido " + admin.getNombre() );
-        int opcionAdmin = 0;
-        do {
-            System.out.println("\nPanel de Administrador");
-            System.out.println("1. Ver catalogo de peliculas ");
-            System.out.println("2. Registrar nueva pelicula");
-            System.out.println("3. Ver cines y salas registradas");
-            System.out.println("4. Cerrar sesion de administrador");
-            System.out.print("Elige una opcion: ");
+        System.out.print("Ingresa el nombre del cine donde deseas gestionar salas: ");
+        String nombreCine = scanner.nextLine();
+        Cine cine = sistema.obtenerCine(nombreCine);
 
-            String entrada = scanner.nextLine();
+        if (cine == null) {
+            System.out.println("El cine no existe.");
+            return;
+        }
+
+        int op = 0;
+        do {
+            System.out.println("\nCine seleccionado: " + cine.getNombreCine());
+            System.out.println("1. Agregar nueva Sala");
+            System.out.println("2. Listar Salas de este cine");
+            System.out.println("3. Volver");
+            System.out.print("Opcion: ");
+
             try {
-                opcionAdmin = Integer.parseInt(entrada);
+                op = Integer.parseInt(scanner.nextLine());
             } catch (Exception e) {
-                opcionAdmin = 0;
+                op = 0;
             }
 
-            switch (opcionAdmin) {
+            switch (op) {
                 case 1:
-                    System.out.println("\nCatalogo de peliculas");
-                    Iterator<Pelicula> itPeli = sistema.getCatalogoPeliculas().iterator();
-                    while (itPeli.hasNext()) {
-                        Pelicula p = itPeli.next();
-                        System.out.println("- Titulo: " + p.getTitulo() + " | Duracion: " + p.getDuracion() + " | Clasificacion: " + p.getClasificacion() + " | Genero: " + p.getGenero());
+                    System.out.print("Identificador de la sala (ej. Sala 2): ");
+                    String idSala = scanner.nextLine();
+                    System.out.print("Numero de filas: ");
+                    int filas = Integer.parseInt(scanner.nextLine());
+                    System.out.print("Asientos por fila: ");
+                    int asientosFila = Integer.parseInt(scanner.nextLine());
+                    System.out.print("Precio base del boleto: $");
+                    double precio = Double.parseDouble(scanner.nextLine());
+
+                    Sala nuevaSala = new Sala(idSala);
+                    nuevaSala.generarAsientos(filas, asientosFila, "TRADICIONAL", precio);
+                    cine.agregaSala(idSala, nuevaSala);
+                    System.out.println("¡Sala agregada con " + (filas * asientosFila) + " asientos!");
+                    break;
+                case 2:
+                    System.out.println("\n=== SALAS EN " + cine.getNombreCine().toUpperCase() + " ===");
+                    if (cine.getSalas().isEmpty()) {
+                        System.out.println("No hay salas en este cine.");
+                    } else {
+                        for (Sala s : cine.getSalas().values()) {
+                            System.out.println("• " + s.getIdSala() + " - Asientos: " + s.getTotalAsientos() + " - Precio: $" + s.getPrecioBase());
+                        }
                     }
                     break;
+                case 3:
+                    break;
+                default:
+                    System.out.println("Opcion no valida.");
+            }
+        } while (op != 3);
+    }
 
-                case 2:
-                    System.out.print("Titulo de la pelicula: ");
+    private static void menuGestionarPeliculas(Sistema sistema) {
+        int op = 0;
+        do {
+            System.out.println("\n--- GESTION DE PELICULAS ---");
+            System.out.println("1. Agregar Pelicula al catalogo");
+            System.out.println("2. Ver catalogo completo");
+            System.out.println("3. Eliminar Pelicula");
+            System.out.println("4. Volver");
+            System.out.print("Opcion: ");
+
+            try {
+                op = Integer.parseInt(scanner.nextLine());
+            } catch (Exception e) {
+                op = 0;
+            }
+
+            switch (op) {
+                case 1:
+                    System.out.print("Titulo: ");
                     String tit = scanner.nextLine();
                     System.out.print("Duracion: ");
                     String dur = scanner.nextLine();
@@ -162,187 +275,227 @@ public class Principal {
                     System.out.print("Director: ");
                     String dir = scanner.nextLine();
 
-                    Pelicula nueva = new Pelicula(tit, dur, cla, gen, dir, new ArrayList<>(), "Sinopsis pendiente.");
-                    admin.registraPelicula(nueva, sistema);
-                    System.out.println("Pelicula registrada con exito ");
+                    Pelicula p = new Pelicula(tit, dur, cla, gen, dir, new ArrayList<>(), "Sinopsis pendiente");
+                    sistema.agregarPelicula(p);
+                    System.out.println("Pelicula '" + tit + "' agregada al catalogo (HashMap)!");
                     break;
-
-                case 3:
-                    System.out.println("\nCINES Y SALA");
-                    Iterator<Cine> itCine = sistema.getCines().iterator();
-                    while (itCine.hasNext()) {
-                        Cine c = itCine.next();
-                        System.out.println("Cine: " + c.getNombreCine());
-                        Iterator<Sala> itSala = c.getSalas().iterator();
-                        while (itSala.hasNext()) {
-                            Sala s = itSala.next();
-                            System.out.println("  -> Sala: " + s.getIdSala() + " (" + s.getTotalAsientos() + " asientos)");
+                case 2:
+                    System.out.println("\n=== CATALOGO DE PELICULAS ===");
+                    if (sistema.getCatalogoPeliculas().isEmpty()) {
+                        System.out.println("No hay peliculas en el catalogo.");
+                    } else {
+                        for (Pelicula pel : sistema.getCatalogoPeliculas().values()) {
+                            System.out.println("• " + pel.getTitulo() + " (" + pel.getClasificacion() + ") - " + pel.getDuracion() + " - " + pel.getGenero());
                         }
                     }
                     break;
-
-                case 4:
-                    System.out.println("Cerrando sesion ");
+                case 3:
+                    System.out.print("Titulo de la pelicula a eliminar: ");
+                    String tituloElim = scanner.nextLine();
+                    if (sistema.eliminarPelicula(tituloElim)) {
+                        System.out.println("Pelicula eliminada del catalogo.");
+                    } else {
+                        System.out.println("No se encontro esa pelicula.");
+                    }
                     break;
-
+                case 4:
+                    break;
                 default:
                     System.out.println("Opcion no valida.");
-                    break;
             }
-        } while (opcionAdmin != 4);
+        } while (op != 4);
     }
 
-    private static void menuCliente(Sistema sistema, Scanner scanner) {
-        System.out.print("\nIngresa tu nombre de cliente: ");
-        String nombre = scanner.nextLine();
-        Cliente cliente = new Cliente(nombre);
-        System.out.println("Bienvenido " + cliente.getNombre());
-
-        int opcionCliente = 0;
+    private static void menuGestionarFunciones(Sistema sistema) {
+        int op = 0;
         do {
-            System.out.println("\nPanel de cliente");
-            System.out.println("1. Ver cartelera disponible ");
-            System.out.println("2. Comprar boleto (elegir pelicula y asiento)");
-            System.out.println("3. Cerrar sesion de cliente");
-            System.out.print("Elige una opcion: ");
+            System.out.println("\n--- GESTION DE FUNCIONES ---");
+            System.out.println("1. Programar nueva Funcion");
+            System.out.println("2. Ver funciones programadas por Cine");
+            System.out.println("3. Volver");
+            System.out.print("Opcion: ");
 
-            String entrada = scanner.nextLine();
             try {
-                opcionCliente = Integer.parseInt(entrada);
+                op = Integer.parseInt(scanner.nextLine());
             } catch (Exception e) {
-                opcionCliente = 0;
+                op = 0;
             }
 
-            switch (opcionCliente) {
+            switch (op) {
                 case 1:
-                    System.out.println("\ncartelera de cine");
-                    Iterator<Pelicula> itCartelera = sistema.getCatalogoPeliculas().iterator();
-                    while (itCartelera.hasNext()) {
-                        Pelicula p = itCartelera.next();
-                        System.out.println("* " + p.getTitulo() + " (" + p.getClasificacion() + ") - " + p.getGenero() + " [" + p.getDuracion() + "]");
-                        System.out.println("  Sinopsis: " + p.getSinopsis());
+                    System.out.print("Cine: ");
+                    String nCine = scanner.nextLine();
+                    Cine c = sistema.obtenerCine(nCine);
+                    if (c == null) {
+                        System.out.println("Cine no encontrado.");
+                        break;
+                    }
+
+                    System.out.print("Sala: ");
+                    String nSala = scanner.nextLine();
+                    Sala s = c.obtenerSala(nSala);
+                    if (s == null) {
+                        System.out.println("Sala no encontrada.");
+                        break;
+                    }
+
+                    System.out.print("Pelicula a proyectar: ");
+                    String nPeli = scanner.nextLine();
+                    Pelicula pel = sistema.obtenerPelicula(nPeli);
+                    if (pel == null) {
+                        System.out.println("Pelicula no encontrada.");
+                        break;
+                    }
+
+                    System.out.print("Fecha (AAAA-MM-DD): ");
+                    String fecha = scanner.nextLine();
+                    System.out.print("Hora (0-23): ");
+                    int hrs = Integer.parseInt(scanner.nextLine());
+                    System.out.print("Minutos (0-59): ");
+                    int min = Integer.parseInt(scanner.nextLine());
+
+                    Funcion f = new Funcion(fecha, hrs, min, pel);
+                    if (s.programarFuncion(f)) {
+                        System.out.println("¡Funcion programada exitosamente!");
                     }
                     break;
-
                 case 2:
-                    List<Pelicula> catalogo = sistema.getCatalogoPeliculas();
-                    if (catalogo == null || catalogo.isEmpty()) {
-                        System.out.println("No hay peliculas disponibles en el catalogo en este momento.");
+                    System.out.print("Nombre del cine: ");
+                    String nomC = scanner.nextLine();
+                    Cine cineBuscado = sistema.obtenerCine(nomC);
+                    if (cineBuscado != null) {
+                        for (Sala sala : cineBuscado.getSalas().values()) {
+                            System.out.println("\nSalas: " + sala.getIdSala());
+                            for (Funcion func : sala.getProgramacion()) {
+                                System.out.println("  • " + func.getPeliculaProyectada().getTitulo() + " - " + func.getFecha() + " " + func.getHorarioHrs() + ":" + func.getHorarioMin());
+                            }
+                        }
+                    } else {
+                        System.out.println("Cine no encontrado.");
+                    }
+                    break;
+                case 3:
+                    break;
+                default:
+                    System.out.println("Opcion no valida.");
+            }
+        } while (op != 3);
+    }
+
+    private static void menuCliente(Sistema sistema) {
+        System.out.print("\nIngresa tu nombre: ");
+        String nombre = scanner.nextLine();
+        Cliente cliente = new Cliente(nombre);
+        System.out.println("¡Bienvenido/a, " + cliente.getNombre() + "!");
+
+        int op = 0;
+        do {
+            System.out.println("\n--- MENU CLIENTE ---");
+            System.out.println("1. Ver cartelera");
+            System.out.println("2. Comprar boleto");
+            System.out.println("3. Volver al menu principal");
+            System.out.print("Opcion: ");
+
+            try {
+                op = Integer.parseInt(scanner.nextLine());
+            } catch (Exception e) {
+                op = 0;
+            }
+
+            switch (op) {
+                case 1:
+                    System.out.println("\n=== CARTELERA DISPONIBLE ===");
+                    if (sistema.getCatalogoPeliculas().isEmpty()) {
+                        System.out.println("No hay peliculas en cartelera.");
+                    } else {
+                        for (Pelicula p : sistema.getCatalogoPeliculas().values()) {
+                            System.out.println("• " + p.getTitulo() + " (" + p.getClasificacion() + ") - " + p.getGenero() + " [" + p.getDuracion() + "]");
+                        }
+                    }
+                    break;
+                case 2:
+                    System.out.println("\n=== COMPRA DE BOLETOS ===");
+                    if (sistema.getCatalogoPeliculas().isEmpty()) {
+                        System.out.println("No hay peliculas disponibles.");
                         break;
                     }
 
-                    System.out.println("\n=== SELECCIONA UNA PELICULA ===");
-                    int indice = 1;
-                    Iterator<Pelicula> itListaPelis = catalogo.iterator();
-                    while (itListaPelis.hasNext()) {
-                        Pelicula p = itListaPelis.next();
-                        System.out.println(indice + ". " + p.getTitulo() + " (" + p.getClasificacion() + ") - " + p.getDuracion());
-                        indice++;
+                    List<Pelicula> pelis = new ArrayList<>(sistema.getCatalogoPeliculas().values());
+                    for (int i = 0; i < pelis.size(); i++) {
+                        System.out.println((i + 1) + ". " + pelis.get(i).getTitulo());
                     }
-
-                    System.out.print("Ingresa el numero de la pelicula que deseas ver: ");
-                    int numPeli = 0;
-                    try {
-                        numPeli = Integer.parseInt(scanner.nextLine());
-                    } catch (Exception e) {
-                        numPeli = 0;
-                    }
-
-                    if (numPeli < 1 || numPeli > catalogo.size()) {
-                        System.out.println("Seleccion invalida.");
+                    System.out.print("Elige el numero de pelicula: ");
+                    int num = Integer.parseInt(scanner.nextLine());
+                    if (num < 1 || num > pelis.size()) {
+                        System.out.println("Opcion invalida.");
                         break;
                     }
+                    Pelicula peliElegida = pelis.get(num - 1);
 
-                    Pelicula peliculaElegida = catalogo.get(numPeli - 1);
-                    System.out.println("\nHas seleccionado: " + peliculaElegida.getTitulo());
-
-                    // Buscar una función que proyecte la película seleccionada
-                    Funcion funcionEncontrada = null;
+                    Funcion funcEncontrada = null;
                     Sala salaEncontrada = null;
-                    Iterator<Cine> itCines = sistema.getCines().iterator();
-                    while (itCines.hasNext() && funcionEncontrada == null) {
-                        Cine c = itCines.next();
-                        Iterator<Sala> itSalas = c.getSalas().iterator();
-                        while (itSalas.hasNext() && funcionEncontrada == null) {
-                            Sala s = itSalas.next();
-                            Iterator<Funcion> itFunciones = s.getProgramacion().iterator();
-                            while (itFunciones.hasNext() && funcionEncontrada == null) {
-                                Funcion f = itFunciones.next();
-                                if (f.getPeliculaProyectada().getTitulo().equalsIgnoreCase(peliculaElegida.getTitulo())) {
-                                    funcionEncontrada = f;
+                    for (Cine c : sistema.getCines().values()) {
+                        for (Sala s : c.getSalas().values()) {
+                            for (Funcion f : s.getProgramacion()) {
+                                if (f.getPeliculaProyectada().getTitulo().equalsIgnoreCase(peliElegida.getTitulo())) {
+                                    funcEncontrada = f;
                                     salaEncontrada = s;
+                                    break;
                                 }
                             }
                         }
                     }
 
-                    if (funcionEncontrada == null || salaEncontrada == null) {
-                        System.out.println("Lo sentimos, no hay funciones programadas para esta pelicula actualmente.");
+                    if (funcEncontrada == null) {
+                        System.out.println("No hay funciones para esta pelicula.");
                         break;
                     }
 
-                    System.out.println("Funcion encontrada: " + funcionEncontrada.getFecha() + " a las " + funcionEncontrada.getHorarioHrs() + ":" + funcionEncontrada.getHorarioMin());
-                    System.out.println("\nAsientos para esta funcion:");
-                    Iterator<Asiento> itAsientos = funcionEncontrada.getAsientos().iterator();
-                    while (itAsientos.hasNext()) {
-                        Asiento a = itAsientos.next();
-                        System.out.print("[" + a.getIdentificador() + " - " + a.getEstadoAsiento() + "] ");
-                    }
-                    System.out.println();
+                    System.out.println("\nFuncion disponible: " + funcEncontrada.getFecha() + " " + funcEncontrada.getHorarioHrs() + ":" + funcEncontrada.getHorarioMin());
+                    funcEncontrada.getSala().mostrarAsientos();
 
-                    System.out.print("\nIngresa el identificador del asiento a comprar (ejemplo: A1): ");
-                    String idAsiento = scanner.nextLine();
+                    System.out.print("Ingresa el asiento (ej. A1): ");
+                    String idA = scanner.nextLine();
+                    Asiento as = funcEncontrada.obtenerAsiento(idA);
 
-                    Asiento asientoElegido = funcionEncontrada.obtenerAsiento(idAsiento);
-                    if (asientoElegido != null) {
-                        if (asientoElegido.getEstadoAsiento().equalsIgnoreCase("DISPONIBLE")) {
-                            List<Asiento> seleccion = new ArrayList<>();
-                            seleccion.add(asientoElegido);
+                    if (as != null && as.getEstadoAsiento().equalsIgnoreCase("DISPONIBLE")) {
+                        List<Asiento> seleccion = new ArrayList<>();
+                        seleccion.add(as);
 
-                            System.out.println("\nSelecciona metodo de pago:");
-                            System.out.println("1. Tarjeta de Credito");
-                            System.out.println("2. Paypal");
-                            System.out.println("3. Transferencia Bancaria");
-                            System.out.print("Opcion: ");
-                            String m = scanner.nextLine();
+                        System.out.println("Selecciona metodo de pago:");
+                        System.out.println("1. Tarjeta de Credito");
+                        System.out.println("2. Paypal");
+                        System.out.println("3. Transferencia");
+                        System.out.print("Opcion: ");
+                        String m = scanner.nextLine();
 
-                            MetodoDePago metodo;
-                            if (m.equals("2")) {
-                                System.out.print("Ingresa tu correo de Paypal: ");
-                                String correo = scanner.nextLine();
-                                metodo = new Paypal(correo);
-                            } else if (m.equals("3")) {
-                                System.out.print("Ingresa tu cuenta bancaria: ");
-                                String cuenta = scanner.nextLine();
-                                metodo = new TransferenciaElectronica(cuenta);
-                            } else {
-                                System.out.print("Ingresa tu numero de tarjeta (16 digitos): ");
-                                String tarjeta = scanner.nextLine();
-                                metodo = new TarjetaCredito(tarjeta);
-                            }
-
-                            Boleto boleto = cliente.comprarBoleto(funcionEncontrada, salaEncontrada.getIdSala(), seleccion, metodo);
-                            if (boleto != null) {
-                                sistema.registrarBoleto(boleto);
-                                System.out.println();
-                                boleto.imprimirBoleto();
-                            }
+                        MetodoDePago metodo;
+                        if (m.equals("2")) {
+                            System.out.print("Correo Paypal: ");
+                            metodo = new Paypal(scanner.nextLine());
+                        } else if (m.equals("3")) {
+                            System.out.print("Cuenta bancaria: ");
+                            metodo = new TransferenciaElectronica(scanner.nextLine());
                         } else {
-                            System.out.println("Ese asiento no esta disponible (Estado: " + asientoElegido.getEstadoAsiento() + ").");
+                            System.out.print("Numero de tarjeta (16 digitos): ");
+                            metodo = new TarjetaCredito(scanner.nextLine());
+                        }
+
+                        Boleto b = cliente.comprarBoleto(funcEncontrada, salaEncontrada.getIdSala(), seleccion, metodo);
+                        if (b != null) {
+                            sistema.registrarBoleto(b);
+                            System.out.println();
+                            b.imprimirBoleto();
                         }
                     } else {
-                        System.out.println("Asiento no encontrado.");
+                        System.out.println("Asiento no valido o no disponible.");
                     }
                     break;
-
                 case 3:
-                    System.out.println("Cerrando sesion de cliente...");
                     break;
-
                 default:
                     System.out.println("Opcion no valida.");
-                    break;
             }
-        } while (opcionCliente != 3);
+        } while (op != 3);
     }
 }
