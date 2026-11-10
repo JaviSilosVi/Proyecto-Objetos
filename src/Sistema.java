@@ -1,23 +1,43 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class Sistema {
     private Map<String, Cine> cines;
     private Map<String, Pelicula> catalogoPeliculas;
     private List<Boleto> boletosVendidos;
+    private Map<String, Administrador> administradores;
 
     public Sistema() {
         this.cines = new HashMap<>();
         this.catalogoPeliculas = new HashMap<>();
         this.boletosVendidos = new ArrayList<>();
+        this.administradores = new HashMap<>();
     }
 
     public boolean inicia() {
         System.out.println("Sistema de Gestion de Cines iniciado con exito.");
         return true;
+    }
+
+    public Map<String, Administrador> getAdministradores() {
+        return administradores;
+    }
+
+    public void registrarAdministrador(Administrador admin) {
+        if (admin != null) {
+            this.administradores.put(admin.getNombre().toLowerCase(), admin);
+        }
+    }
+
+    public Administrador autenticarAdmin(String nombre, String pin) {
+        if (nombre == null || pin == null) return null;
+        Administrador admin = this.administradores.get(nombre.trim().toLowerCase());
+        if (admin != null && admin.validarPin(pin.trim())) {
+            return admin;
+        }
+        return null;
     }
 
     public Map<String, Cine> getCines() {
@@ -51,31 +71,41 @@ public class Sistema {
     }
 
     public Cine obtenerCine(String nombreCine) {
-        if (this.cines != null) {
-            return this.cines.get(nombreCine);
+        if (this.cines == null || nombreCine == null) return null;
+        String busqueda = nombreCine.trim().toLowerCase();
+
+        // 1. Coincidencia exacta
+        for (Cine c : this.cines.values()) {
+            if (c.getNombreCine().equalsIgnoreCase(busqueda)) {
+                return c;
+            }
+        }
+        // 2. Coincidencia parcial (por si escribe solo "Cinepolis")
+        for (Cine c : this.cines.values()) {
+            if (c.getNombreCine().toLowerCase().contains(busqueda)) {
+                return c;
+            }
         }
         return null;
     }
 
     public boolean eliminarCine(String nombreCine) {
-        if (this.cines != null && this.cines.containsKey(nombreCine)) {
-            this.cines.remove(nombreCine);
+        Cine cine = obtenerCine(nombreCine);
+        if (cine != null) {
+            this.cines.remove(cine.getNombreCine());
             return true;
         }
         return false;
     }
 
     public boolean modificarCine(String nombreActual, Cine cineActualizado) {
-        if (this.eliminarCine(nombreActual)) {
-            if (cineActualizado != null) {
-                this.cines.put(cineActualizado.getNombreCine(), cineActualizado);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
+        Cine cine = obtenerCine(nombreActual);
+        if (cine != null && cineActualizado != null) {
+            this.cines.remove(cine.getNombreCine());
+            this.cines.put(cineActualizado.getNombreCine(), cineActualizado);
+            return true;
         }
+        return false;
     }
 
     public void agregarPelicula(Pelicula nuevaPelicula) {
@@ -85,31 +115,39 @@ public class Sistema {
     }
 
     public Pelicula obtenerPelicula(String titulo) {
-        if (this.catalogoPeliculas != null) {
-            return this.catalogoPeliculas.get(titulo);
+        if (this.catalogoPeliculas == null || titulo == null) return null;
+        String busqueda = titulo.trim().toLowerCase();
+
+        for (Pelicula p : this.catalogoPeliculas.values()) {
+            if (p.getTitulo().equalsIgnoreCase(busqueda)) {
+                return p;
+            }
+        }
+        for (Pelicula p : this.catalogoPeliculas.values()) {
+            if (p.getTitulo().toLowerCase().contains(busqueda)) {
+                return p;
+            }
         }
         return null;
     }
 
     public boolean eliminarPelicula(String titulo) {
-        if (this.catalogoPeliculas != null && this.catalogoPeliculas.containsKey(titulo)) {
-            this.catalogoPeliculas.remove(titulo);
+        Pelicula p = obtenerPelicula(titulo);
+        if (p != null) {
+            this.catalogoPeliculas.remove(p.getTitulo());
             return true;
         }
         return false;
     }
 
     public boolean modificarPelicula(String tituloActual, Pelicula modificacion) {
-        if (this.eliminarPelicula(tituloActual)) {
-            if (modificacion != null) {
-                this.catalogoPeliculas.put(modificacion.getTitulo(), modificacion);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
+        Pelicula p = obtenerPelicula(tituloActual);
+        if (p != null && modificacion != null) {
+            this.catalogoPeliculas.remove(p.getTitulo());
+            this.catalogoPeliculas.put(modificacion.getTitulo(), modificacion);
+            return true;
         }
+        return false;
     }
 
     public List<Pelicula> buscarPeliculasPorActor(String actorBuscado) {
