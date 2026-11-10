@@ -1,21 +1,25 @@
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 
 public class Sala {
+    private Map<String, Asiento> asientos;
+    private List<Funcion> programacion;
     private String idSala;
     private int filas;
     private int asientosPorFila;
+    private String tipoSala;
     private double precioBase;
-    private List<Asiento> asientos;
-    private List<Funcion> programacion;
 
     public Sala(String idSala) {
         this.idSala = idSala;
         this.filas = 0;
         this.asientosPorFila = 0;
+        this.tipoSala = "TRADICIONAL";
         this.precioBase = 0.0;
-        this.asientos = new ArrayList<>();
+        this.asientos = new HashMap<>();
         this.programacion = new ArrayList<>();
     }
 
@@ -23,8 +27,9 @@ public class Sala {
         this.idSala = idSala;
         this.filas = filas;
         this.asientosPorFila = asientosPorFila;
+        this.tipoSala = "TRADICIONAL";
         this.precioBase = precioBase;
-        this.asientos = new ArrayList<>();
+        this.asientos = new HashMap<>();
         this.programacion = new ArrayList<>();
     }
 
@@ -52,6 +57,14 @@ public class Sala {
         this.asientosPorFila = asientosPorFila;
     }
 
+    public String getTipoSala() {
+        return tipoSala;
+    }
+
+    public void setTipoSala(String tipoSala) {
+        this.tipoSala = tipoSala;
+    }
+
     public double getPrecioBase() {
         return precioBase;
     }
@@ -60,15 +73,11 @@ public class Sala {
         this.precioBase = precioBase;
     }
 
-    public String getTipoSala() {
-        return "TRADICIONAL";
-    }
-
-    public List<Asiento> getAsientos() {
+    public Map<String, Asiento> getAsientos() {
         return asientos;
     }
 
-    public void setAsientos(List<Asiento> asientos) {
+    public void setAsientos(Map<String, Asiento> asientos) {
         this.asientos = asientos;
     }
 
@@ -90,17 +99,13 @@ public class Sala {
 
     public void agregaAsiento(Asiento asiento) {
         if (asiento != null) {
-            this.asientos.add(asiento);
+            this.asientos.put(asiento.getIdentificador(), asiento);
         }
     }
 
     public Asiento obtenerAsiento(String idAsiento) {
-        Iterator<Asiento> iterador = this.asientos.iterator();
-        while (iterador.hasNext()) {
-            Asiento asientoActual = iterador.next();
-            if (asientoActual.getIdentificador().equalsIgnoreCase(idAsiento)) {
-                return asientoActual;
-            }
+        if (this.asientos != null) {
+            return this.asientos.get(idAsiento);
         }
         return null;
     }
@@ -108,6 +113,7 @@ public class Sala {
     public void generarAsientos(int filas, int asientoPorFila, String tipo, double precio) {
         this.filas = filas;
         this.asientosPorFila = asientoPorFila;
+        this.tipoSala = tipo;
         this.precioBase = precio;
         this.asientos.clear();
 
@@ -116,7 +122,7 @@ public class Sala {
             for (int j = 1; j <= asientoPorFila; j++) {
                 String idAsiento = letraFila + String.valueOf(j);
                 Asiento nuevoAsiento = new Asiento(idAsiento, tipo, precio);
-                this.asientos.add(nuevoAsiento);
+                this.asientos.put(idAsiento, nuevoAsiento);
             }
         }
     }
@@ -138,7 +144,7 @@ public class Sala {
         }
 
         nuevaFuncion.setSala(this);
-        nuevaFuncion.inicializarAsientos();
+        nuevaFuncion.inicializarAsientos(this.asientos);
         this.programacion.add(nuevaFuncion);
         return true;
     }
@@ -179,10 +185,10 @@ public class Sala {
 
     public void mostrarAsientos() {
         System.out.println("=== Asientos de la sala " + this.idSala + " ===");
-        Iterator<Asiento> iterador = this.asientos.iterator();
-        while (iterador.hasNext()) {
-            Asiento a = iterador.next();
-            System.out.print("[" + a.getIdentificador() + " - " + a.getEstadoAsiento() + "] ");
+        if (this.asientos != null) {
+            for (Asiento a : this.asientos.values()) {
+                System.out.print("[" + a.getIdentificador() + " - " + a.getEstadoAsiento() + "] ");
+            }
         }
         System.out.println();
     }

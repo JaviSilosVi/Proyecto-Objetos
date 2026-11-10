@@ -1,15 +1,17 @@
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class Sistema {
-    private List<Cine> cines;
-    private List<Pelicula> catalogoPeliculas;
+    private Map<String, Cine> cines;
+    private Map<String, Pelicula> catalogoPeliculas;
     private List<Boleto> boletosVendidos;
 
     public Sistema() {
-        this.cines = new ArrayList<>();
-        this.catalogoPeliculas = new ArrayList<>();
+        this.cines = new HashMap<>();
+        this.catalogoPeliculas = new HashMap<>();
         this.boletosVendidos = new ArrayList<>();
     }
 
@@ -18,19 +20,19 @@ public class Sistema {
         return true;
     }
 
-    public List<Cine> getCines() {
+    public Map<String, Cine> getCines() {
         return cines;
     }
 
-    public void setCines(List<Cine> cines) {
+    public void setCines(Map<String, Cine> cines) {
         this.cines = cines;
     }
 
-    public List<Pelicula> getCatalogoPeliculas() {
+    public Map<String, Pelicula> getCatalogoPeliculas() {
         return catalogoPeliculas;
     }
 
-    public void setCatalogoPeliculas(List<Pelicula> catalogoPeliculas) {
+    public void setCatalogoPeliculas(Map<String, Pelicula> catalogoPeliculas) {
         this.catalogoPeliculas = catalogoPeliculas;
     }
 
@@ -44,29 +46,21 @@ public class Sistema {
 
     public void agregaCine(Cine cineNuevo) {
         if (cineNuevo != null) {
-            this.cines.add(cineNuevo);
+            this.cines.put(cineNuevo.getNombreCine(), cineNuevo);
         }
     }
 
     public Cine obtenerCine(String nombreCine) {
-        Iterator<Cine> iterador = this.cines.iterator();
-        while (iterador.hasNext()) {
-            Cine cineActual = iterador.next();
-            if (cineActual.getNombreCine().equalsIgnoreCase(nombreCine)) {
-                return cineActual;
-            }
+        if (this.cines != null) {
+            return this.cines.get(nombreCine);
         }
         return null;
     }
 
     public boolean eliminarCine(String nombreCine) {
-        Iterator<Cine> iterador = this.cines.iterator();
-        while (iterador.hasNext()) {
-            Cine cineActual = iterador.next();
-            if (cineActual.getNombreCine().equalsIgnoreCase(nombreCine)) {
-                iterador.remove();
-                return true;
-            }
+        if (this.cines != null && this.cines.containsKey(nombreCine)) {
+            this.cines.remove(nombreCine);
+            return true;
         }
         return false;
     }
@@ -74,7 +68,7 @@ public class Sistema {
     public boolean modificarCine(String nombreActual, Cine cineActualizado) {
         if (this.eliminarCine(nombreActual)) {
             if (cineActualizado != null) {
-                this.cines.add(cineActualizado);
+                this.cines.put(cineActualizado.getNombreCine(), cineActualizado);
                 return true;
             } else {
                 return false;
@@ -86,29 +80,21 @@ public class Sistema {
 
     public void agregarPelicula(Pelicula nuevaPelicula) {
         if (nuevaPelicula != null) {
-            this.catalogoPeliculas.add(nuevaPelicula);
+            this.catalogoPeliculas.put(nuevaPelicula.getTitulo(), nuevaPelicula);
         }
     }
 
     public Pelicula obtenerPelicula(String titulo) {
-        Iterator<Pelicula> iterador = this.catalogoPeliculas.iterator();
-        while (iterador.hasNext()) {
-            Pelicula peliculaActual = iterador.next();
-            if (peliculaActual.getTitulo().equalsIgnoreCase(titulo)) {
-                return peliculaActual;
-            }
+        if (this.catalogoPeliculas != null) {
+            return this.catalogoPeliculas.get(titulo);
         }
         return null;
     }
 
     public boolean eliminarPelicula(String titulo) {
-        Iterator<Pelicula> iterador = this.catalogoPeliculas.iterator();
-        while (iterador.hasNext()) {
-            Pelicula peliculaActual = iterador.next();
-            if (peliculaActual.getTitulo().equalsIgnoreCase(titulo)) {
-                iterador.remove();
-                return true;
-            }
+        if (this.catalogoPeliculas != null && this.catalogoPeliculas.containsKey(titulo)) {
+            this.catalogoPeliculas.remove(titulo);
+            return true;
         }
         return false;
     }
@@ -116,7 +102,7 @@ public class Sistema {
     public boolean modificarPelicula(String tituloActual, Pelicula modificacion) {
         if (this.eliminarPelicula(tituloActual)) {
             if (modificacion != null) {
-                this.catalogoPeliculas.add(modificacion);
+                this.catalogoPeliculas.put(modificacion.getTitulo(), modificacion);
                 return true;
             } else {
                 return false;
@@ -128,16 +114,14 @@ public class Sistema {
 
     public List<Pelicula> buscarPeliculasPorActor(String actorBuscado) {
         List<Pelicula> encontradas = new ArrayList<>();
-        Iterator<Pelicula> iteradorPeliculas = this.catalogoPeliculas.iterator();
-        while (iteradorPeliculas.hasNext()) {
-            Pelicula p = iteradorPeliculas.next();
-            if (p.getActores() != null) {
-                Iterator<String> iteradorActores = p.getActores().iterator();
-                while (iteradorActores.hasNext()) {
-                    String actor = iteradorActores.next();
-                    if (actor.toLowerCase().contains(actorBuscado.toLowerCase())) {
-                        encontradas.add(p);
-                        break;
+        if (this.catalogoPeliculas != null) {
+            for (Pelicula p : this.catalogoPeliculas.values()) {
+                if (p.getActores() != null) {
+                    for (String actor : p.getActores()) {
+                        if (actor.toLowerCase().contains(actorBuscado.toLowerCase())) {
+                            encontradas.add(p);
+                            break;
+                        }
                     }
                 }
             }
@@ -147,11 +131,11 @@ public class Sistema {
 
     public List<Pelicula> buscarPeliculasPorClasificacion(String clasificacion) {
         List<Pelicula> encontradas = new ArrayList<>();
-        Iterator<Pelicula> iterador = this.catalogoPeliculas.iterator();
-        while (iterador.hasNext()) {
-            Pelicula p = iterador.next();
-            if (p.getClasificacion().equalsIgnoreCase(clasificacion)) {
-                encontradas.add(p);
+        if (this.catalogoPeliculas != null) {
+            for (Pelicula p : this.catalogoPeliculas.values()) {
+                if (p.getClasificacion().equalsIgnoreCase(clasificacion)) {
+                    encontradas.add(p);
+                }
             }
         }
         return encontradas;

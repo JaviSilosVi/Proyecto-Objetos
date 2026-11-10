@@ -1,14 +1,13 @@
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Cine {
     private String nombreCine;
-    private List<Sala> salas;
+    private Map<String, Sala> salas;
 
     public Cine(String nombreCine) {
         this.nombreCine = nombreCine;
-        this.salas = new ArrayList<>();
+        this.salas = new HashMap<>();
     }
 
     public String getNombreCine() {
@@ -19,40 +18,32 @@ public class Cine {
         this.nombreCine = nombreCine;
     }
 
-    public List<Sala> getSalas() {
+    public Map<String, Sala> getSalas() {
         return salas;
     }
 
-    public void setSalas(List<Sala> salas) {
+    public void setSalas(Map<String, Sala> salas) {
         this.salas = salas;
     }
 
     public void agregaSala(String idSala, Sala nuevaSala) {
         if (nuevaSala != null) {
             nuevaSala.setIdSala(idSala);
-            this.salas.add(nuevaSala);
+            this.salas.put(idSala, nuevaSala);
         }
     }
 
     public Sala obtenerSala(String idSala) {
-        Iterator<Sala> iterador = this.salas.iterator();
-        while (iterador.hasNext()) {
-            Sala salaActual = iterador.next();
-            if (salaActual.getIdSala().equalsIgnoreCase(idSala)) {
-                return salaActual;
-            }
+        if (this.salas != null) {
+            return this.salas.get(idSala);
         }
         return null;
     }
 
     public boolean eliminaSala(String idSala) {
-        Iterator<Sala> iterador = this.salas.iterator();
-        while (iterador.hasNext()) {
-            Sala salaActual = iterador.next();
-            if (salaActual.getIdSala().equalsIgnoreCase(idSala)) {
-                iterador.remove();
-                return true;
-            }
+        if (this.salas != null && this.salas.containsKey(idSala)) {
+            this.salas.remove(idSala);
+            return true;
         }
         return false;
     }
@@ -61,7 +52,7 @@ public class Cine {
         if (this.eliminaSala(idActual)) {
             if (salaActualizada != null) {
                 salaActualizada.setIdSala(nuevoId);
-                this.salas.add(salaActualizada);
+                this.salas.put(nuevoId, salaActualizada);
                 return true;
             } else {
                 return false;
