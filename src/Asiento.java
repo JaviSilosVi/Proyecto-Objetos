@@ -52,12 +52,11 @@ public class Asiento {
         }
     }
 
-    public boolean vender() {
-        if (!this.estadoAsiento.equalsIgnoreCase("VENDIDO")) {
-            this.estadoAsiento = "VENDIDO";
-            return true;
-        } else {
-            return false;
+    public boolean vender() throws AsientoOcupadoException {
+        if (this.estadoAsiento.equalsIgnoreCase("VENDIDO")) {
+            throw new AsientoOcupadoException("Error: El asiento " + this.identificador + " ya se encuentra vendido.");
         }
+        this.estadoAsiento = "VENDIDO";
+        return true;
     }
 }

@@ -127,18 +127,18 @@ public class Sala {
         }
     }
 
-    public boolean agregarFuncion(Funcion nuevaFuncion) {
+    public boolean agregarFuncion(Funcion nuevaFuncion) throws ConflictoHorarioException {
         if (nuevaFuncion == null) {
-            return false;
+            throw new IllegalArgumentException("La función a agregar no puede ser nula.");
         }
 
         Iterator<Funcion> iterador = this.programacion.iterator();
         while (iterador.hasNext()) {
             Funcion funcionActual = iterador.next();
-            if (funcionActual.getFecha().equals(nuevaFuncion.getFecha())) {
+            if (funcionActual.getFecha() != null && funcionActual.getFecha().equals(nuevaFuncion.getFecha())) {
                 if (funcionActual.getHorarioHrs() == nuevaFuncion.getHorarioHrs()) {
-                    System.out.println("Conflicto de horario: ya hay una funcion programada a esa hora.");
-                    return false;
+                    throw new ConflictoHorarioException("Conflicto de horario: La sala " + this.idSala + 
+                        " ya tiene una función programada a las " + funcionActual.getHorarioHrs() + ":00 hrs.");
                 }
             }
         }
@@ -149,7 +149,7 @@ public class Sala {
         return true;
     }
 
-    public boolean programarFuncion(Funcion nuevaFuncion) {
+    public boolean programarFuncion(Funcion nuevaFuncion) throws ConflictoHorarioException {
         return this.agregarFuncion(nuevaFuncion);
     }
 
@@ -157,7 +157,7 @@ public class Sala {
         Iterator<Funcion> iterador = this.programacion.iterator();
         while (iterador.hasNext()) {
             Funcion funcionActual = iterador.next();
-            if (funcionActual.getFecha().equals(fecha)) {
+            if (funcionActual.getFecha() != null && funcionActual.getFecha().equals(fecha)) {
                 if (funcionActual.getHorarioHrs() == horarioHrs) {
                     iterador.remove();
                     return true;
@@ -175,7 +175,7 @@ public class Sala {
         }
     }
 
-    public boolean modificarFuncion(Funcion funcionActual, Funcion funcionModificada) {
+    public boolean modificarFuncion(Funcion funcionActual, Funcion funcionModificada) throws ConflictoHorarioException {
         if (this.cancelarFuncion(funcionActual)) {
             return this.agregarFuncion(funcionModificada);
         } else {

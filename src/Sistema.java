@@ -70,8 +70,13 @@ public class Sistema {
         }
     }
 
-    public Cine obtenerCine(String nombreCine) {
-        if (this.cines == null || nombreCine == null) return null;
+    public Cine obtenerCine(String nombreCine) throws EntidadNoEncontradaException {
+        if (nombreCine == null || nombreCine.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre del cine no puede estar vacío.");
+        }
+        if (this.cines == null) {
+            throw new EntidadNoEncontradaException("El catálogo de cines está vacío.");
+        }
         String busqueda = nombreCine.trim().toLowerCase();
 
         // 1. Coincidencia exacta
@@ -80,32 +85,29 @@ public class Sistema {
                 return c;
             }
         }
-        // 2. Coincidencia parcial (por si escribe solo "Cinepolis")
+        // 2. Coincidencia parcial
         for (Cine c : this.cines.values()) {
             if (c.getNombreCine().toLowerCase().contains(busqueda)) {
                 return c;
             }
         }
-        return null;
+        throw new EntidadNoEncontradaException("El cine '" + nombreCine + "' no existe en el sistema.");
     }
 
-    public boolean eliminarCine(String nombreCine) {
-        Cine cine = obtenerCine(nombreCine);
-        if (cine != null) {
-            this.cines.remove(cine.getNombreCine());
-            return true;
-        }
-        return false;
+    public boolean eliminarCine(String nombreCine) throws EntidadNoEncontradaException {
+        Cine cine = obtenerCine(nombreCine); // Si no existe, lanza EntidadNoEncontradaException
+        this.cines.remove(cine.getNombreCine());
+        return true;
     }
 
-    public boolean modificarCine(String nombreActual, Cine cineActualizado) {
+    public boolean modificarCine(String nombreActual, Cine cineActualizado) throws EntidadNoEncontradaException {
         Cine cine = obtenerCine(nombreActual);
-        if (cine != null && cineActualizado != null) {
-            this.cines.remove(cine.getNombreCine());
-            this.cines.put(cineActualizado.getNombreCine(), cineActualizado);
-            return true;
+        if (cineActualizado == null) {
+            throw new IllegalArgumentException("El cine actualizado no puede ser nulo.");
         }
-        return false;
+        this.cines.remove(cine.getNombreCine());
+        this.cines.put(cineActualizado.getNombreCine(), cineActualizado);
+        return true;
     }
 
     public void agregarPelicula(Pelicula nuevaPelicula) {
@@ -114,8 +116,13 @@ public class Sistema {
         }
     }
 
-    public Pelicula obtenerPelicula(String titulo) {
-        if (this.catalogoPeliculas == null || titulo == null) return null;
+    public Pelicula obtenerPelicula(String titulo) throws EntidadNoEncontradaException {
+        if (titulo == null || titulo.trim().isEmpty()) {
+            throw new IllegalArgumentException("El título de la película no puede estar vacío.");
+        }
+        if (this.catalogoPeliculas == null) {
+            throw new EntidadNoEncontradaException("El catálogo de películas está vacío.");
+        }
         String busqueda = titulo.trim().toLowerCase();
 
         for (Pelicula p : this.catalogoPeliculas.values()) {
@@ -128,26 +135,23 @@ public class Sistema {
                 return p;
             }
         }
-        return null;
+        throw new EntidadNoEncontradaException("La película '" + titulo + "' no fue encontrada en el catálogo.");
     }
 
-    public boolean eliminarPelicula(String titulo) {
-        Pelicula p = obtenerPelicula(titulo);
-        if (p != null) {
-            this.catalogoPeliculas.remove(p.getTitulo());
-            return true;
-        }
-        return false;
+    public boolean eliminarPelicula(String titulo) throws EntidadNoEncontradaException {
+        Pelicula p = obtenerPelicula(titulo); // Lanza EntidadNoEncontradaException si no existe
+        this.catalogoPeliculas.remove(p.getTitulo());
+        return true;
     }
 
-    public boolean modificarPelicula(String tituloActual, Pelicula modificacion) {
+    public boolean modificarPelicula(String tituloActual, Pelicula modificacion) throws EntidadNoEncontradaException {
         Pelicula p = obtenerPelicula(tituloActual);
-        if (p != null && modificacion != null) {
-            this.catalogoPeliculas.remove(p.getTitulo());
-            this.catalogoPeliculas.put(modificacion.getTitulo(), modificacion);
-            return true;
+        if (modificacion == null) {
+            throw new IllegalArgumentException("La película modificada no puede ser nula.");
         }
-        return false;
+        this.catalogoPeliculas.remove(p.getTitulo());
+        this.catalogoPeliculas.put(modificacion.getTitulo(), modificacion);
+        return true;
     }
 
     public List<Pelicula> buscarPeliculasPorActor(String actorBuscado) {
