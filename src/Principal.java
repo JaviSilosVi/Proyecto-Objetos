@@ -82,7 +82,11 @@ public class Principal {
         sistema.agregaCine(cine1);
 
         Funcion f1 = new Funcion("2026-11-20", 18, 30, p1);
-        sistema.programarFuncion("Cinepolis Centro", "Sala 1", f1);
+        try {
+            sistema.programarFuncion("Cinepolis Centro", "Sala 1", f1);
+        } catch (EntidadNoEncontradaException | ConflictoHorarioException e) {
+            System.out.println("Aviso al inicializar datos: " + e.getMessage());
+        }
     }
 
     private static void registrarNuevoAdmin(Sistema sistema) {
@@ -198,11 +202,12 @@ public class Principal {
                 case 1:
                     System.out.print("Nombre del nuevo cine: ");
                     String nombre = scanner.nextLine();
-                    if (sistema.obtenerCine(nombre) == null) {
+                    try {
+                        sistema.obtenerCine(nombre);
+                        System.out.println("Ese cine ya se encuentra registrado.");
+                    } catch (EntidadNoEncontradaException ex) {
                         sistema.agregaCine(new Cine(nombre));
                         System.out.println("¡Cine '" + nombre + "' registrado con exito!");
-                    } else {
-                        System.out.println("Ese cine ya se encuentra registrado.");
                     }
                     break;
                 case 2:
@@ -210,19 +215,16 @@ public class Principal {
                     listarCinesDisponibles(sistema);
                     System.out.print("Nombre actual del cine a modificar: ");
                     String nombreActual = scanner.nextLine();
-                    Cine cActual = sistema.obtenerCine(nombreActual);
-                    if (cActual != null) {
+                    try {
+                        Cine cActual = sistema.obtenerCine(nombreActual);
                         System.out.print("Nuevo nombre para el cine: ");
                         String nombreNuevo = scanner.nextLine();
                         Cine cNuevo = new Cine(nombreNuevo);
                         cNuevo.setSalas(cActual.getSalas());
-                        if (sistema.modificarCine(nombreActual, cNuevo)) {
-                            System.out.println("¡Cine modificado exitosamente!");
-                        } else {
-                            System.out.println("No se pudo modificar el cine.");
-                        }
-                    } else {
-                        System.out.println("Error: No se encontro el cine especificado.");
+                        sistema.modificarCine(nombreActual, cNuevo);
+                        System.out.println("¡Cine modificado exitosamente!");
+                    } catch (EntidadNoEncontradaException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
                 case 3:
@@ -230,10 +232,11 @@ public class Principal {
                     listarCinesDisponibles(sistema);
                     System.out.print("Nombre del cine a eliminar: ");
                     String cineEliminar = scanner.nextLine();
-                    if (sistema.eliminarCine(cineEliminar)) {
+                    try {
+                        sistema.eliminarCine(cineEliminar);
                         System.out.println("Cine eliminado correctamente.");
-                    } else {
-                        System.out.println("No se encontro un cine con ese nombre.");
+                    } catch (EntidadNoEncontradaException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
                 case 4:
@@ -269,10 +272,11 @@ public class Principal {
         listarCinesDisponibles(sistema);
         System.out.print("Ingresa el nombre del cine donde deseas gestionar salas: ");
         String nombreCine = scanner.nextLine();
-        Cine cine = sistema.obtenerCine(nombreCine);
-
-        if (cine == null) {
-            System.out.println("El cine no existe.");
+        Cine cine;
+        try {
+            cine = sistema.obtenerCine(nombreCine);
+        } catch (EntidadNoEncontradaException e) {
+            System.out.println("El cine no existe: " + e.getMessage());
             return;
         }
 
@@ -313,8 +317,8 @@ public class Principal {
                     listarSalasDeCine(cine);
                     System.out.print("ID de la sala que deseas modificar: ");
                     String idSalaActual = scanner.nextLine();
-                    Sala sActual = cine.obtenerSala(idSalaActual);
-                    if (sActual != null) {
+                    try {
+                        Sala sActual = cine.obtenerSala(idSalaActual);
                         System.out.print("Nuevo ID para la sala: ");
                         String nuevoId = scanner.nextLine();
                         System.out.print("Nuevas filas: ");
@@ -328,13 +332,10 @@ public class Principal {
                         sMod.generarAsientos(nFilas, nAsientosFila, sActual.getTipoSala(), nPrecio);
                         sMod.setProgramacion(sActual.getProgramacion());
 
-                        if (cine.modificaSala(idSalaActual, nuevoId, sMod)) {
-                            System.out.println("¡Sala modificada exitosamente!");
-                        } else {
-                            System.out.println("No se pudo modificar la sala.");
-                        }
-                    } else {
-                        System.out.println("Error: No se encontro la sala.");
+                        cine.modificaSala(idSalaActual, nuevoId, sMod);
+                        System.out.println("¡Sala modificada exitosamente!");
+                    } catch (EntidadNoEncontradaException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
                 case 3:
@@ -342,10 +343,11 @@ public class Principal {
                     listarSalasDeCine(cine);
                     System.out.print("ID de la sala a eliminar: ");
                     String idEliminar = scanner.nextLine();
-                    if (cine.eliminaSala(idEliminar)) {
+                    try {
+                        cine.eliminaSala(idEliminar);
                         System.out.println("¡Sala eliminada correctamente!");
-                    } else {
-                        System.out.println("No se encontro esa sala.");
+                    } catch (EntidadNoEncontradaException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
                 case 4:
@@ -409,8 +411,8 @@ public class Principal {
                     listarPeliculasDisponibles(sistema);
                     System.out.print("Titulo de la pelicula a modificar: ");
                     String tActual = scanner.nextLine();
-                    Pelicula pelActual = sistema.obtenerPelicula(tActual);
-                    if (pelActual != null) {
+                    try {
+                        Pelicula pelActual = sistema.obtenerPelicula(tActual);
                         System.out.println("Ingresa los nuevos datos:");
                         System.out.print("Nuevo Titulo: ");
                         String nTit = scanner.nextLine();
@@ -424,13 +426,10 @@ public class Principal {
                         String nDir = scanner.nextLine();
 
                         Pelicula pelMod = new Pelicula(nTit, nDur, nCla, nGen, nDir, pelActual.getActores(), pelActual.getSinopsis());
-                        if (sistema.modificarPelicula(tActual, pelMod)) {
-                            System.out.println("¡Pelicula modificada con exito!");
-                        } else {
-                            System.out.println("No se pudo modificar la pelicula.");
-                        }
-                    } else {
-                        System.out.println("Error: No se encontro la pelicula.");
+                        sistema.modificarPelicula(tActual, pelMod);
+                        System.out.println("¡Pelicula modificada con exito!");
+                    } catch (EntidadNoEncontradaException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
                 case 3:
@@ -438,10 +437,11 @@ public class Principal {
                     listarPeliculasDisponibles(sistema);
                     System.out.print("Titulo de la pelicula a eliminar: ");
                     String tituloElim = scanner.nextLine();
-                    if (sistema.eliminarPelicula(tituloElim)) {
+                    try {
+                        sistema.eliminarPelicula(tituloElim);
                         System.out.println("Pelicula eliminada del catalogo.");
-                    } else {
-                        System.out.println("No se encontro esa pelicula.");
+                    } catch (EntidadNoEncontradaException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
                 case 4:
@@ -491,46 +491,38 @@ public class Principal {
 
                     System.out.print("Nombre del Cine: ");
                     String nCine = scanner.nextLine();
-                    Cine c = sistema.obtenerCine(nCine);
-                    if (c == null) {
-                        System.out.println("Cine no encontrado.");
-                        break;
-                    }
+                    try {
+                        Cine c = sistema.obtenerCine(nCine);
 
-                    System.out.println("\n=== SALAS DISPONIBLES EN " + c.getNombreCine().toUpperCase() + " ===");
-                    listarSalasDeCine(c);
-                    if (c.getSalas().isEmpty()) break;
+                        System.out.println("\n=== SALAS DISPONIBLES EN " + c.getNombreCine().toUpperCase() + " ===");
+                        listarSalasDeCine(c);
+                        if (c.getSalas().isEmpty()) break;
 
-                    System.out.print("ID de la Sala: ");
-                    String nSala = scanner.nextLine();
-                    Sala s = c.obtenerSala(nSala);
-                    if (s == null) {
-                        System.out.println("Sala no encontrada.");
-                        break;
-                    }
+                        System.out.print("ID de la Sala: ");
+                        String nSala = scanner.nextLine();
+                        Sala s = c.obtenerSala(nSala);
 
-                    System.out.println("\n=== PELICULAS DISPONIBLES ===");
-                    listarPeliculasDisponibles(sistema);
-                    if (sistema.getCatalogoPeliculas().isEmpty()) break;
+                        System.out.println("\n=== PELICULAS DISPONIBLES ===");
+                        listarPeliculasDisponibles(sistema);
+                        if (sistema.getCatalogoPeliculas().isEmpty()) break;
 
-                    System.out.print("Titulo de la Pelicula: ");
-                    String nPeli = scanner.nextLine();
-                    Pelicula pel = sistema.obtenerPelicula(nPeli);
-                    if (pel == null) {
-                        System.out.println("Pelicula no encontrada.");
-                        break;
-                    }
+                        System.out.print("Titulo de la Pelicula: ");
+                        String nPeli = scanner.nextLine();
+                        Pelicula pel = sistema.obtenerPelicula(nPeli);
 
-                    System.out.print("Fecha (AAAA-MM-DD): ");
-                    String fecha = scanner.nextLine();
-                    System.out.print("Hora de inicio (0-23): ");
-                    int hrs = Integer.parseInt(scanner.nextLine());
-                    System.out.print("Minuto de inicio (0-59): ");
-                    int min = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Fecha (AAAA-MM-DD): ");
+                        String fecha = scanner.nextLine();
+                        System.out.print("Hora de inicio (0-23): ");
+                        int hrs = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Minuto de inicio (0-59): ");
+                        int min = Integer.parseInt(scanner.nextLine());
 
-                    Funcion f = new Funcion(fecha, hrs, min, pel);
-                    if (s.programarFuncion(f)) {
-                        System.out.println("¡Funcion programada exitosamente en " + c.getNombreCine() + " - " + s.getIdSala() + "!");
+                        Funcion f = new Funcion(fecha, hrs, min, pel);
+                        if (s.programarFuncion(f)) {
+                            System.out.println("¡Funcion programada exitosamente en " + c.getNombreCine() + " - " + s.getIdSala() + "!");
+                        }
+                    } catch (EntidadNoEncontradaException | ConflictoHorarioException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
 
@@ -539,53 +531,45 @@ public class Principal {
                     listarCinesDisponibles(sistema);
                     System.out.print("Nombre del Cine: ");
                     String cineMod = scanner.nextLine();
-                    Cine cM = sistema.obtenerCine(cineMod);
-                    if (cM == null) {
-                        System.out.println("Cine no encontrado.");
-                        break;
-                    }
+                    try {
+                        Cine cM = sistema.obtenerCine(cineMod);
 
-                    System.out.println("\nSalas disponibles:");
-                    listarSalasDeCine(cM);
-                    System.out.print("ID de la Sala: ");
-                    String salaMod = scanner.nextLine();
-                    Sala sM = cM.obtenerSala(salaMod);
-                    if (sM == null) {
-                        System.out.println("Sala no encontrada.");
-                        break;
-                    }
+                        System.out.println("\nSalas disponibles:");
+                        listarSalasDeCine(cM);
+                        System.out.print("ID de la Sala: ");
+                        String salaMod = scanner.nextLine();
+                        Sala sM = cM.obtenerSala(salaMod);
 
-                    System.out.println("\nFunciones programadas en esa sala:");
-                    mostrarFuncionesDeSala(sM);
+                        System.out.println("\nFunciones programadas en esa sala:");
+                        mostrarFuncionesDeSala(sM);
 
-                    System.out.print("Fecha actual de la funcion a modificar (AAAA-MM-DD): ");
-                    String fAct = scanner.nextLine();
-                    System.out.print("Hora actual de la funcion (0-23): ");
-                    int hAct = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Fecha actual de la funcion a modificar (AAAA-MM-DD): ");
+                        String fAct = scanner.nextLine();
+                        System.out.print("Hora actual de la funcion (0-23): ");
+                        int hAct = Integer.parseInt(scanner.nextLine());
 
-                    System.out.println("\n--- NUEVOS DATOS PARA LA FUNCION ---");
-                    System.out.println("Peliculas disponibles:");
-                    listarPeliculasDisponibles(sistema);
-                    System.out.print("Nueva Pelicula: ");
-                    String nPeliN = scanner.nextLine();
-                    Pelicula peliNueva = sistema.obtenerPelicula(nPeliN);
-                    if (peliNueva == null) {
-                        System.out.println("Pelicula no encontrada.");
-                        break;
-                    }
+                        System.out.println("\n--- NUEVOS DATOS PARA LA FUNCION ---");
+                        System.out.println("Peliculas disponibles:");
+                        listarPeliculasDisponibles(sistema);
+                        System.out.print("Nueva Pelicula: ");
+                        String nPeliN = scanner.nextLine();
+                        Pelicula peliNueva = sistema.obtenerPelicula(nPeliN);
 
-                    System.out.print("Nueva Fecha (AAAA-MM-DD): ");
-                    String fN = scanner.nextLine();
-                    System.out.print("Nueva Hora (0-23): ");
-                    int hN = Integer.parseInt(scanner.nextLine());
-                    System.out.print("Nuevos Minutos (0-59): ");
-                    int mN = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Nueva Fecha (AAAA-MM-DD): ");
+                        String fN = scanner.nextLine();
+                        System.out.print("Nueva Hora (0-23): ");
+                        int hN = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Nuevos Minutos (0-59): ");
+                        int mN = Integer.parseInt(scanner.nextLine());
 
-                    Funcion fModificada = new Funcion(fN, hN, mN, peliNueva);
-                    if (sistema.modificarFuncion(cineMod, salaMod, fAct, hAct, fModificada)) {
-                        System.out.println("¡Funcion modificada exitosamente!");
-                    } else {
-                        System.out.println("No se pudo modificar la funcion (verifica la fecha y hora actual).");
+                        Funcion fModificada = new Funcion(fN, hN, mN, peliNueva);
+                        if (sistema.modificarFuncion(cineMod, salaMod, fAct, hAct, fModificada)) {
+                            System.out.println("¡Funcion modificada exitosamente!");
+                        } else {
+                            System.out.println("No se pudo modificar la funcion (verifica la fecha y hora actual).");
+                        }
+                    } catch (EntidadNoEncontradaException | ConflictoHorarioException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
 
@@ -594,34 +578,30 @@ public class Principal {
                     listarCinesDisponibles(sistema);
                     System.out.print("Nombre del Cine: ");
                     String cElim = scanner.nextLine();
-                    Cine cineE = sistema.obtenerCine(cElim);
-                    if (cineE == null) {
-                        System.out.println("Cine no encontrado.");
-                        break;
-                    }
+                    try {
+                        Cine cineE = sistema.obtenerCine(cElim);
 
-                    System.out.println("\nSalas disponibles:");
-                    listarSalasDeCine(cineE);
-                    System.out.print("ID de la Sala: ");
-                    String sElim = scanner.nextLine();
-                    Sala salaE = cineE.obtenerSala(sElim);
-                    if (salaE == null) {
-                        System.out.println("Sala no encontrada.");
-                        break;
-                    }
+                        System.out.println("\nSalas disponibles:");
+                        listarSalasDeCine(cineE);
+                        System.out.print("ID de la Sala: ");
+                        String sElim = scanner.nextLine();
+                        Sala salaE = cineE.obtenerSala(sElim);
 
-                    System.out.println("\nFunciones programadas en esa sala:");
-                    mostrarFuncionesDeSala(salaE);
+                        System.out.println("\nFunciones programadas en esa sala:");
+                        mostrarFuncionesDeSala(salaE);
 
-                    System.out.print("Fecha de la funcion a cancelar (AAAA-MM-DD): ");
-                    String fCancel = scanner.nextLine();
-                    System.out.print("Hora de la funcion a cancelar (0-23): ");
-                    int hCancel = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Fecha de la funcion a cancelar (AAAA-MM-DD): ");
+                        String fCancel = scanner.nextLine();
+                        System.out.print("Hora de la funcion a cancelar (0-23): ");
+                        int hCancel = Integer.parseInt(scanner.nextLine());
 
-                    if (sistema.eliminarFuncion(cElim, sElim, fCancel, hCancel)) {
-                        System.out.println("¡Funcion cancelada exitosamente!");
-                    } else {
-                        System.out.println("No se encontro una funcion con esa fecha y hora.");
+                        if (sistema.eliminarFuncion(cElim, sElim, fCancel, hCancel)) {
+                            System.out.println("¡Funcion cancelada exitosamente!");
+                        } else {
+                            System.out.println("No se encontro una funcion con esa fecha y hora.");
+                        }
+                    } catch (EntidadNoEncontradaException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
 
@@ -638,15 +618,15 @@ public class Principal {
                             }
                         }
                     } else {
-                        Cine cineObj = sistema.obtenerCine(cConsulta);
-                        if (cineObj != null) {
+                        try {
+                            Cine cineObj = sistema.obtenerCine(cConsulta);
                             System.out.println("\nCINE: " + cineObj.getNombreCine().toUpperCase());
                             for (Sala salaObj : cineObj.getSalas().values()) {
                                 System.out.println("  • " + salaObj.getIdSala() + ":");
                                 mostrarFuncionesDeSala(salaObj);
                             }
-                        } else {
-                            System.out.println("Cine no encontrado.");
+                        } catch (EntidadNoEncontradaException ex) {
+                            System.out.println("Error: " + ex.getMessage());
                         }
                     }
                     break;
@@ -762,11 +742,15 @@ public class Principal {
                             metodo = new TarjetaCredito(scanner.nextLine());
                         }
 
-                        Boleto b = cliente.comprarBoleto(funcEncontrada, salaEncontrada.getIdSala(), seleccion, metodo);
-                        if (b != null) {
-                            sistema.registrarBoleto(b);
-                            System.out.println();
-                            b.imprimirBoleto();
+                        try {
+                            Boleto b = cliente.comprarBoleto(funcEncontrada, salaEncontrada.getIdSala(), seleccion, metodo);
+                            if (b != null) {
+                                sistema.registrarBoleto(b);
+                                System.out.println();
+                                b.imprimirBoleto();
+                            }
+                        } catch (AsientoOcupadoException ex) {
+                            System.out.println("Error al comprar: " + ex.getMessage());
                         }
                     } else {
                         System.out.println("Asiento no valido o no disponible.");
