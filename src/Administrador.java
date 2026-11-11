@@ -51,7 +51,8 @@ public class Administrador extends Usuario {
         }
     }
 
-    public boolean programarFuncion(String idCine, String idSala, Funcion nuevaFuncion, Sistema sistemaActivo) {
+    public boolean programarFuncion(String idCine, String idSala, Funcion nuevaFuncion, Sistema sistemaActivo)
+            throws EntidadNoEncontradaException, ConflictoHorarioException {
         if (sistemaActivo != null) {
             return sistemaActivo.programarFuncion(idCine, idSala, nuevaFuncion);
         } else {
@@ -59,7 +60,8 @@ public class Administrador extends Usuario {
         }
     }
 
-    public boolean eliminarFuncion(String idCine, String idSala, Funcion funcionACancelar, Sistema sistemaActivo) {
+    public boolean eliminarFuncion(String idCine, String idSala, Funcion funcionACancelar, Sistema sistemaActivo)
+            throws EntidadNoEncontradaException {
         if (sistemaActivo != null) {
             return sistemaActivo.cancelarFuncion(idCine, idSala, funcionACancelar);
         } else {
@@ -67,7 +69,8 @@ public class Administrador extends Usuario {
         }
     }
 
-    public boolean modificarFuncion(String idCine, String idSala, Funcion funcionActual, Funcion funcionModificada, Sistema sistemaActivo) {
+    public boolean modificarFuncion(String idCine, String idSala, Funcion funcionActual, Funcion funcionModificada, Sistema sistemaActivo)
+            throws EntidadNoEncontradaException, ConflictoHorarioException {
         if (sistemaActivo != null) {
             return sistemaActivo.modificarFuncion(idCine, idSala, funcionActual.getFecha(), funcionActual.getHorarioHrs(), funcionModificada);
         } else {

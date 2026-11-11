@@ -183,47 +183,33 @@ public class Sistema {
         return encontradas;
     }
 
-    public boolean programarFuncion(String idCine, String idSala, Funcion nuevaFuncion) {
+    public boolean programarFuncion(String idCine, String idSala, Funcion nuevaFuncion)
+            throws EntidadNoEncontradaException, ConflictoHorarioException {
         Cine cine = this.obtenerCine(idCine);
-        if (cine != null) {
-            return cine.programarFuncion(idSala, nuevaFuncion);
-        } else {
-            System.out.println("Cine no encontrado: " + idCine);
-            return false;
-        }
+        return cine.programarFuncion(idSala, nuevaFuncion);
     }
 
-    public boolean eliminarFuncion(String nombreCine, String idSala, String fecha, int horarioHrs) {
+    public boolean eliminarFuncion(String nombreCine, String idSala, String fecha, int horarioHrs)
+            throws EntidadNoEncontradaException {
         Cine cine = this.obtenerCine(nombreCine);
-        if (cine != null) {
-            Sala sala = cine.obtenerSala(idSala);
-            if (sala != null) {
-                return sala.cancelarFuncion(fecha, horarioHrs);
-            }
+        Sala sala = cine.obtenerSala(idSala);
+        return sala.cancelarFuncion(fecha, horarioHrs);
+    }
+
+    public boolean modificarFuncion(String nombreCine, String idSala, String fecha, int horarioHrs, Funcion nuevaFuncion)
+            throws EntidadNoEncontradaException, ConflictoHorarioException {
+        Cine cine = this.obtenerCine(nombreCine);
+        Sala sala = cine.obtenerSala(idSala);
+        if (sala.cancelarFuncion(fecha, horarioHrs)) {
+            return sala.programarFuncion(nuevaFuncion);
         }
         return false;
     }
 
-    public boolean modificarFuncion(String nombreCine, String idSala, String fecha, int horarioHrs, Funcion nuevaFuncion) {
-        Cine cine = this.obtenerCine(nombreCine);
-        if (cine != null) {
-            Sala sala = cine.obtenerSala(idSala);
-            if (sala != null) {
-                if (sala.cancelarFuncion(fecha, horarioHrs)) {
-                    return sala.programarFuncion(nuevaFuncion);
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean cancelarFuncion(String idCine, String idSala, Funcion funcionACancelar) {
+    public boolean cancelarFuncion(String idCine, String idSala, Funcion funcionACancelar)
+            throws EntidadNoEncontradaException {
         Cine cine = this.obtenerCine(idCine);
-        if (cine != null) {
-            return cine.cancelarFuncion(idSala, funcionACancelar);
-        } else {
-            return false;
-        }
+        return cine.cancelarFuncion(idSala, funcionACancelar);
     }
 
     public void registrarBoleto(Boleto boleto) {
