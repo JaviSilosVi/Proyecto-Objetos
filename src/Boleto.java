@@ -72,13 +72,17 @@ public class Boleto {
     }
 
     public double calcularTotal() {
+        if (this.asientosAsignados == null || this.asientosAsignados.isEmpty()) {
+            throw new IllegalStateException("Error de estado: El boleto no contiene asientos asignados para calcular el total.");
+        }
         double suma = 0.0;
-        if (this.asientosAsignados != null) {
-            Iterator<Asiento> iterador = this.asientosAsignados.iterator();
-            while (iterador.hasNext()) {
-                Asiento a = iterador.next();
-                suma = suma + a.getPrecio();
+        Iterator<Asiento> iterador = this.asientosAsignados.iterator();
+        while (iterador.hasNext()) {
+            Asiento a = iterador.next();
+            if (a.getPrecio() < 0) {
+                throw new IllegalStateException("Error de estado: Precio inválido para el asiento " + a.getIdentificador());
             }
+            suma = suma + a.getPrecio();
         }
         return suma;
     }

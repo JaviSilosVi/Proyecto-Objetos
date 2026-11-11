@@ -15,15 +15,10 @@ public class Administrador extends Usuario {
     }
 
     public boolean validarPin(String pinIngresado) {
-        if (this.pinAcceso != null) {
-            if (this.pinAcceso.equals(pinIngresado)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
+        if (pinIngresado == null || pinIngresado.trim().isEmpty()) {
+            throw new IllegalArgumentException("El PIN ingresado no puede ser nulo ni vacío.");
         }
+        return this.pinAcceso != null && this.pinAcceso.equals(pinIngresado.trim());
     }
 
     public void registraPelicula(Pelicula nuevaPelicula, Sistema sistemaActivo) {
@@ -32,7 +27,7 @@ public class Administrador extends Usuario {
         }
     }
 
-    public boolean modificaPelicula(String tituloActual, Pelicula modificacion, Sistema sistemaActivo) {
+    public boolean modificaPelicula(String tituloActual, Pelicula modificacion, Sistema sistemaActivo) throws EntidadNoEncontradaException {
         if (sistemaActivo != null) {
             return sistemaActivo.modificarPelicula(tituloActual, modificacion);
         } else {
@@ -40,7 +35,7 @@ public class Administrador extends Usuario {
         }
     }
 
-    public boolean eliminarPelicula(String tituloElimina, Sistema sistemaActivo) {
+    public boolean eliminarPelicula(String tituloElimina, Sistema sistemaActivo) throws EntidadNoEncontradaException {
         if (sistemaActivo != null) {
             return sistemaActivo.eliminarPelicula(tituloElimina);
         } else {
@@ -48,7 +43,7 @@ public class Administrador extends Usuario {
         }
     }
 
-    public Pelicula obtenerPelicula(String titulo, Sistema sistemaActivo) {
+    public Pelicula obtenerPelicula(String titulo, Sistema sistemaActivo) throws EntidadNoEncontradaException {
         if (sistemaActivo != null) {
             return sistemaActivo.obtenerPelicula(titulo);
         } else {

@@ -15,22 +15,13 @@ public class TarjetaCredito implements MetodoDePago {
 
     @Override
     public boolean procesarPago(double monto) {
-        if (monto > 0) {
-            if (this.numeroTarjeta != null) {
-                if (this.numeroTarjeta.length() >= 10) {
-                    System.out.println("Pago de $" + monto + " aprobado con Tarjeta terminacion " + this.numeroTarjeta.substring(this.numeroTarjeta.length() - 4));
-                    return true;
-                } else {
-                    System.out.println("numero de tarjeta invalido ");
-                    return false;
-                }
-            } else {
-                System.out.println("no se ingreso el numero de tarjeta");
-                return false;
-            }
-        } else {
-            System.out.println("El monto a pagar debe ser mayor a 0 pesos");
-            return false;
+        if (monto <= 0) {
+            throw new IllegalArgumentException("El monto a pagar debe ser mayor a 0 pesos. Monto recibido: " + monto);
         }
+        if (this.numeroTarjeta == null || this.numeroTarjeta.trim().length() < 10) {
+            throw new IllegalArgumentException("Número de tarjeta inválido para procesar la transacción.");
+        }
+        System.out.println("Pago de $" + monto + " aprobado con Tarjeta terminación " + this.numeroTarjeta.substring(this.numeroTarjeta.length() - 4));
+        return true;
     }
 }

@@ -33,22 +33,22 @@ public class Cine {
         }
     }
 
-    public Sala obtenerSala(String idSala) {
-        if (this.salas != null) {
-            return this.salas.get(idSala);
+    public Sala obtenerSala(String idSala) throws EntidadNoEncontradaException {
+        if (this.salas == null || !this.salas.containsKey(idSala)) {
+            throw new EntidadNoEncontradaException("La sala '" + idSala + "' no existe en el cine " + this.nombreCine);
         }
-        return null;
+        return this.salas.get(idSala);
     }
 
-    public boolean eliminaSala(String idSala) {
-        if (this.salas != null && this.salas.containsKey(idSala)) {
-            this.salas.remove(idSala);
-            return true;
+    public boolean eliminaSala(String idSala) throws EntidadNoEncontradaException {
+        if (this.salas == null || !this.salas.containsKey(idSala)) {
+            throw new EntidadNoEncontradaException("No se puede eliminar: La sala '" + idSala + "' no existe en el cine " + this.nombreCine);
         }
-        return false;
+        this.salas.remove(idSala);
+        return true;
     }
 
-    public boolean modificaSala(String idActual, String nuevoId, Sala salaActualizada) {
+    public boolean modificaSala(String idActual, String nuevoId, Sala salaActualizada) throws EntidadNoEncontradaException {
         if (this.eliminaSala(idActual)) {
             if (salaActualizada != null) {
                 salaActualizada.setIdSala(nuevoId);
@@ -62,31 +62,18 @@ public class Cine {
         }
     }
 
-    public boolean programarFuncion(String idSala, Funcion nuevaFuncion) {
+    public boolean programarFuncion(String idSala, Funcion nuevaFuncion) throws EntidadNoEncontradaException, ConflictoHorarioException {
         Sala sala = this.obtenerSala(idSala);
-        if (sala != null) {
-            return sala.programarFuncion(nuevaFuncion);
-        } else {
-            System.out.println("No se encontro la sala " + idSala + " en el cine " + this.nombreCine);
-            return false;
-        }
+        return sala.programarFuncion(nuevaFuncion);
     }
 
-    public boolean cancelarFuncion(String idSala, Funcion funcionACancelar) {
+    public boolean cancelarFuncion(String idSala, Funcion funcionACancelar) throws EntidadNoEncontradaException {
         Sala sala = this.obtenerSala(idSala);
-        if (sala != null) {
-            return sala.cancelarFuncion(funcionACancelar);
-        } else {
-            return false;
-        }
+        return sala.cancelarFuncion(funcionACancelar);
     }
 
-    public boolean modificarFuncion(String idSala, Funcion funcionActual, Funcion funcionModificada) {
+    public boolean modificarFuncion(String idSala, Funcion funcionActual, Funcion funcionModificada) throws EntidadNoEncontradaException, ConflictoHorarioException {
         Sala sala = this.obtenerSala(idSala);
-        if (sala != null) {
-            return sala.modificarFuncion(funcionActual, funcionModificada);
-        } else {
-            return false;
-        }
+        return sala.modificarFuncion(funcionActual, funcionModificada);
     }
 }
