@@ -72,7 +72,11 @@ public class Principal {
         sistema.agregaCine(cine1);
 
         Funcion f1 = new Funcion("2026-11-20", 18, 30, p1);
-        sistema.programarFuncion("Cinepolis Centro", "Sala 1", f1);
+        try {
+            sistema.programarFuncion("Cinepolis Centro", "Sala 1", f1);
+        } catch (EntidadNoEncontradaException | ConflictoHorarioException e) {
+            System.out.println("Aviso al inicializar: " + e.getMessage());
+        }
     }
 
     private static void menuAdministrador(Sistema sistema) {
@@ -146,11 +150,12 @@ public class Principal {
                 case 1:
                     System.out.print("Nombre del nuevo cine: ");
                     String nombre = scanner.nextLine();
-                    if (sistema.obtenerCine(nombre) == null) {
+                    try {
+                        sistema.obtenerCine(nombre);
+                        System.out.println("Ese cine ya se encuentra registrado.");
+                    } catch (EntidadNoEncontradaException ex) {
                         sistema.agregaCine(new Cine(nombre));
                         System.out.println("¡Cine '" + nombre + "' registrado con exito en el mapa!");
-                    } else {
-                        System.out.println("Ese cine ya se encuentra registrado.");
                     }
                     break;
                 case 2:
@@ -166,10 +171,11 @@ public class Principal {
                 case 3:
                     System.out.print("Nombre del cine a eliminar: ");
                     String cineEliminar = scanner.nextLine();
-                    if (sistema.eliminarCine(cineEliminar)) {
+                    try {
+                        sistema.eliminarCine(cineEliminar);
                         System.out.println("Cine eliminado correctamente.");
-                    } else {
-                        System.out.println("No se encontro un cine con ese nombre.");
+                    } catch (EntidadNoEncontradaException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
                 case 4:
@@ -189,10 +195,11 @@ public class Principal {
 
         System.out.print("Ingresa el nombre del cine donde deseas gestionar salas: ");
         String nombreCine = scanner.nextLine();
-        Cine cine = sistema.obtenerCine(nombreCine);
-
-        if (cine == null) {
-            System.out.println("El cine no existe.");
+        Cine cine;
+        try {
+            cine = sistema.obtenerCine(nombreCine);
+        } catch (EntidadNoEncontradaException e) {
+            System.out.println("Error: " + e.getMessage());
             return;
         }
 
@@ -290,10 +297,11 @@ public class Principal {
                 case 3:
                     System.out.print("Titulo de la pelicula a eliminar: ");
                     String tituloElim = scanner.nextLine();
-                    if (sistema.eliminarPelicula(tituloElim)) {
+                    try {
+                        sistema.eliminarPelicula(tituloElim);
                         System.out.println("Pelicula eliminada del catalogo.");
-                    } else {
-                        System.out.println("No se encontro esa pelicula.");
+                    } catch (EntidadNoEncontradaException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
                 case 4:
@@ -323,53 +331,45 @@ public class Principal {
                 case 1:
                     System.out.print("Cine: ");
                     String nCine = scanner.nextLine();
-                    Cine c = sistema.obtenerCine(nCine);
-                    if (c == null) {
-                        System.out.println("Cine no encontrado.");
-                        break;
-                    }
+                    try {
+                        Cine c = sistema.obtenerCine(nCine);
 
-                    System.out.print("Sala: ");
-                    String nSala = scanner.nextLine();
-                    Sala s = c.obtenerSala(nSala);
-                    if (s == null) {
-                        System.out.println("Sala no encontrada.");
-                        break;
-                    }
+                        System.out.print("Sala: ");
+                        String nSala = scanner.nextLine();
+                        Sala s = c.obtenerSala(nSala);
 
-                    System.out.print("Pelicula a proyectar: ");
-                    String nPeli = scanner.nextLine();
-                    Pelicula pel = sistema.obtenerPelicula(nPeli);
-                    if (pel == null) {
-                        System.out.println("Pelicula no encontrada.");
-                        break;
-                    }
+                        System.out.print("Pelicula a proyectar: ");
+                        String nPeli = scanner.nextLine();
+                        Pelicula pel = sistema.obtenerPelicula(nPeli);
 
-                    System.out.print("Fecha (AAAA-MM-DD): ");
-                    String fecha = scanner.nextLine();
-                    System.out.print("Hora (0-23): ");
-                    int hrs = Integer.parseInt(scanner.nextLine());
-                    System.out.print("Minutos (0-59): ");
-                    int min = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Fecha (AAAA-MM-DD): ");
+                        String fecha = scanner.nextLine();
+                        System.out.print("Hora (0-23): ");
+                        int hrs = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Minutos (0-59): ");
+                        int min = Integer.parseInt(scanner.nextLine());
 
-                    Funcion f = new Funcion(fecha, hrs, min, pel);
-                    if (s.programarFuncion(f)) {
-                        System.out.println("¡Funcion programada exitosamente!");
+                        Funcion f = new Funcion(fecha, hrs, min, pel);
+                        if (s.programarFuncion(f)) {
+                            System.out.println("¡Funcion programada exitosamente!");
+                        }
+                    } catch (EntidadNoEncontradaException | ConflictoHorarioException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
                 case 2:
                     System.out.print("Nombre del cine: ");
                     String nomC = scanner.nextLine();
-                    Cine cineBuscado = sistema.obtenerCine(nomC);
-                    if (cineBuscado != null) {
+                    try {
+                        Cine cineBuscado = sistema.obtenerCine(nomC);
                         for (Sala sala : cineBuscado.getSalas().values()) {
                             System.out.println("\nSalas: " + sala.getIdSala());
                             for (Funcion func : sala.getProgramacion()) {
                                 System.out.println("  • " + func.getPeliculaProyectada().getTitulo() + " - " + func.getFecha() + " " + func.getHorarioHrs() + ":" + func.getHorarioMin());
                             }
                         }
-                    } else {
-                        System.out.println("Cine no encontrado.");
+                    } catch (EntidadNoEncontradaException ex) {
+                        System.out.println("Error: " + ex.getMessage());
                     }
                     break;
                 case 3:
@@ -479,11 +479,15 @@ public class Principal {
                             metodo = new TarjetaCredito(scanner.nextLine());
                         }
 
-                        Boleto b = cliente.comprarBoleto(funcEncontrada, salaEncontrada.getIdSala(), seleccion, metodo);
-                        if (b != null) {
-                            sistema.registrarBoleto(b);
-                            System.out.println();
-                            b.imprimirBoleto();
+                        try {
+                            Boleto b = cliente.comprarBoleto(funcEncontrada, salaEncontrada.getIdSala(), seleccion, metodo);
+                            if (b != null) {
+                                sistema.registrarBoleto(b);
+                                System.out.println();
+                                b.imprimirBoleto();
+                            }
+                        } catch (AsientoOcupadoException ex) {
+                            System.out.println("Error en la venta: " + ex.getMessage());
                         }
                     } else {
                         System.out.println("Asiento no valido o no disponible.");
