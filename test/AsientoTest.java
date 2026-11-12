@@ -3,7 +3,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AsientoTest {
 
-    // METODO CRITICO 1: Asiento.vender()
+    // METODO CRITICO 1 Asiento.vender()
 
     // 1. Camino Feliz: Asiento disponible se vende exitosamente
     @Test

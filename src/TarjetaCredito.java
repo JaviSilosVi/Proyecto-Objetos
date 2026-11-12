@@ -18,7 +18,7 @@ public class TarjetaCredito implements MetodoDePago {
         if (monto <= 0) {
             throw new IllegalArgumentException("El monto a pagar debe ser mayor a 0 pesos. Monto recibido: " + monto);
         }
-        if (this.numeroTarjeta == null || this.numeroTarjeta.trim().length() < 10) {
+        if (this.numeroTarjeta == null || this.numeroTarjeta.trim().length() < 16) {
             throw new IllegalArgumentException("Número de tarjeta inválido para procesar la transacción.");
         }
         System.out.println("Pago de $" + monto + " aprobado con Tarjeta terminación " + this.numeroTarjeta.substring(this.numeroTarjeta.length() - 4));
