@@ -13,11 +13,14 @@ public class Principal {
 
         int opcionPrincipal = 0;
         do {
+            System.out.println("\n==================================================");
             System.out.println("          SISTEMA DE GESTION DE CINES             ");
-            System.out.println("1. Abrir Interfaz Grafica ");
-            System.out.println("2. Entrar como Administrador");
-            System.out.println("3. Entrar como Cliente");
-            System.out.println("4. Salir");
+            System.out.println("==================================================");
+            System.out.println("1. Abrir Interfaz Grafica (GUI)");
+            System.out.println("2. Iniciar Sesion como Administrador");
+            System.out.println("3. Registrar nuevo Administrador");
+            System.out.println("4. Entrar como Cliente");
+            System.out.println("5. Salir");
             System.out.print("Selecciona una opcion: ");
 
             String entrada = scanner.nextLine();
@@ -29,28 +32,35 @@ public class Principal {
 
             switch (opcionPrincipal) {
                 case 1:
-                    System.out.println("\n Abriendo ventana de Login");
+                    System.out.println("\n[GUI] Abriendo ventana de Login...");
                     VentanaLogin login = new VentanaLogin(sistema);
                     login.setVisible(true);
                     break;
                 case 2:
-                    menuAdministrador(sistema);
+                    menuLoginAdmin(sistema);
                     break;
                 case 3:
-                    menuCliente(sistema);
+                    registrarNuevoAdmin(sistema);
                     break;
                 case 4:
-                    System.out.println("\nSaliendo del programa");
+                    menuCliente(sistema);
+                    break;
+                case 5:
+                    System.out.println("\nSaliendo del programa. ¡Hasta pronto!");
                     break;
                 default:
-                    System.out.println("Opcion no valida Intenta de nuevo.");
+                    System.out.println("Opcion no valida. Intenta de nuevo.");
                     break;
             }
-        } while (opcionPrincipal != 4 && opcionPrincipal != 1);
+        } while (opcionPrincipal != 5 && opcionPrincipal != 1);
     }
 
     private static void cargarDatosIniciales(Sistema sistema) {
-        Administrador admin = new Administrador("Admin Pablo", "1234");
+        // Administradores iniciales
+        Administrador admin1 = new Administrador("Pablo", "1234");
+        Administrador admin2 = new Administrador("Admin", "0000");
+        sistema.registrarAdministrador(admin1);
+        sistema.registrarAdministrador(admin2);
 
         List<String> actores1 = new ArrayList<>();
         actores1.add("Jack Black");
@@ -62,8 +72,8 @@ public class Principal {
         actores2.add("Gwyneth Paltrow");
         Pelicula p2 = new Pelicula("Iron Man 2", "2:04", "B", "Accion", "Jon Favreau", actores2, "Tony Stark se enfrenta a nuevas amenazas.");
 
-        admin.registraPelicula(p1, sistema);
-        admin.registraPelicula(p2, sistema);
+        admin1.registraPelicula(p1, sistema);
+        admin1.registraPelicula(p2, sistema);
 
         Cine cine1 = new Cine("Cinepolis Centro");
         Sala sala1 = new Sala("Sala 1");
@@ -79,26 +89,61 @@ public class Principal {
         }
     }
 
-    private static void menuAdministrador(Sistema sistema) {
-        Administrador admin = new Administrador("Admin General", "1234");
-        System.out.print("\nIngresa el PIN de Administrador (PIN por defecto: 1234): ");
-        String pin = scanner.nextLine();
-
-        if (!admin.validarPin(pin)) {
-            System.out.println("PIN incorrecto. Acceso denegado.");
+    private static void registrarNuevoAdmin(Sistema sistema) {
+        System.out.println("\n--- REGISTRO DE NUEVO ADMINISTRADOR ---");
+        System.out.print("Ingresa tu nombre de usuario: ");
+        String nombre = scanner.nextLine();
+        if (nombre.trim().isEmpty()) {
+            System.out.println("El nombre no puede estar vacio.");
             return;
         }
 
+        if (sistema.getAdministradores().containsKey(nombre.trim().toLowerCase())) {
+            System.out.println("Error: Ya existe un administrador registrado con ese nombre.");
+            return;
+        }
+
+        System.out.print("Crea tu PIN secreto de acceso (minimo 4 digitos): ");
+        String pin = scanner.nextLine();
+        try {
+            Administrador nuevo = new Administrador(nombre.trim(), pin.trim());
+            nuevo.validarPin(pin.trim()); // Valida formato defensivo
+            sistema.registrarAdministrador(nuevo);
+            System.out.println("¡Administrador '" + nombre + "' registrado con exito! Ya puedes iniciar sesion con tu PIN.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error de registro: " + e.getMessage());
+        }
+    }
+
+    private static void menuLoginAdmin(Sistema sistema) {
+        System.out.println("\n--- ACCESO DE ADMINISTRADOR ---");
+        System.out.print("Nombre de usuario Administrador: ");
+        String nombre = scanner.nextLine();
+        System.out.print("PIN secreto: ");
+        String pin = scanner.nextLine();
+
+        Administrador adminLogueado = sistema.autenticarAdmin(nombre, pin);
+        if (adminLogueado == null) {
+            System.out.println("Error: Credenciales incorrectas (Usuario inexistente o PIN invalido).");
+            return;
+        }
+
+        System.out.println("\n¡Bienvenido al panel, Administrador " + adminLogueado.getNombre() + "!");
+        menuAdministrador(sistema, adminLogueado);
+    }
+
+    private static void menuAdministrador(Sistema sistema, Administrador admin) {
         int opcion = 0;
         do {
             System.out.println("\n========================================");
-            System.out.println("         PANEL DE ADMINISTRACION        ");
+            System.out.println("     PANEL DE ADMINISTRACION (" + admin.getNombre() + ")");
             System.out.println("========================================");
             System.out.println("1. Gestionar Cines");
             System.out.println("2. Gestionar Salas");
             System.out.println("3. Gestionar Peliculas");
             System.out.println("4. Gestionar Funciones");
-            System.out.println("5. Cerrar Sesion de Administrador");
+            System.out.println("5. Ver Administradores registrados");
+            System.out.println("6. Cerrar Sesion de Administrador");
             System.out.print("Elige una opcion: ");
 
             try {
@@ -121,13 +166,19 @@ public class Principal {
                     menuGestionarFunciones(sistema);
                     break;
                 case 5:
-                    System.out.println("Cerrando sesion...");
+                    System.out.println("\n=== ADMINISTRADORES REGISTRADOS ===");
+                    for (Administrador a : sistema.getAdministradores().values()) {
+                        System.out.println("• " + a.getNombre());
+                    }
+                    break;
+                case 6:
+                    System.out.println("Cerrando sesion de administrador...");
                     break;
                 default:
                     System.out.println("Opcion no valida.");
                     break;
             }
-        } while (opcion != 5);
+        } while (opcion != 6);
     }
 
     private static void menuGestionarCines(Sistema sistema) {
