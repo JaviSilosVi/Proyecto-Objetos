@@ -348,9 +348,9 @@ public class VentanaAdmin extends JFrame {
 
     private void abrirDialogoNuevaSala() {
         JTextField txtId = new JTextField();
-        JTextField txtFilas = new JTextField("3");
-        JTextField txtCols = new JTextField("4");
-        JTextField txtPrecio = new JTextField("80.0");
+        JTextField txtFilas = new JTextField();
+        JTextField txtCols = new JTextField();
+        JTextField txtPrecio = new JTextField();
 
         Object[] formulario = {
             "ID de la Sala (ej. Sala 2):", txtId,
@@ -383,10 +383,10 @@ public class VentanaAdmin extends JFrame {
 
     private void abrirDialogoNuevaPelicula() {
         JTextField txtTitulo = new JTextField();
-        JTextField txtDuracion = new JTextField("1:45");
-        JTextField txtClasif = new JTextField("A");
-        JTextField txtGenero = new JTextField("Acción");
-        JTextField txtDirector = new JTextField("Director");
+        JTextField txtDuracion = new JTextField();
+        JTextField txtClasif = new JTextField();
+        JTextField txtGenero = new JTextField();
+        JTextField txtDirector = new JTextField();
 
         Object[] formulario = {
             "Título de la Película:", txtTitulo,
@@ -423,9 +423,9 @@ public class VentanaAdmin extends JFrame {
 
         JTextField txtSala = new JTextField();
         JTextField txtPelicula = new JTextField();
-        JTextField txtFecha = new JTextField("2026-11-20");
-        JTextField txtHora = new JTextField("18");
-        JTextField txtMinutos = new JTextField("30");
+        JTextField txtFecha = new JTextField();
+        JTextField txtHora = new JTextField();
+        JTextField txtMinutos = new JTextField();
 
         Object[] formulario = {
             "ID de la Sala en este cine:", txtSala,
