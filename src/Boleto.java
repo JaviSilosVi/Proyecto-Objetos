@@ -88,25 +88,6 @@ public class Boleto {
     }
 
     public void imprimirBoleto() {
-        System.out.println("   Boletos A Comprar           ");
-        if (this.informacionPelicula != null) {
-            System.out.println("Pelicula: " + this.informacionPelicula.getTitulo());
-            System.out.println("Clasificacion: " + this.informacionPelicula.getClasificacion());
-        }
-        System.out.println("Sala: " + this.informacionSala);
-        if (this.informacionFuncion != null) {
-            System.out.println("Fecha: " + this.informacionFuncion.getFecha());
-            System.out.println("Horario: " + this.informacionFuncion.getHorarioHrs() + ":" + this.informacionFuncion.getHorarioMin());
-        }
-        System.out.print("Asientos: ");
-        if (this.asientosAsignados != null) {
-            Iterator<Asiento> iterador = this.asientosAsignados.iterator();
-            while (iterador.hasNext()) {
-                Asiento a = iterador.next();
-                System.out.print(a.getIdentificador() + " ");
-            }
-        }
-        System.out.println();
-        System.out.println("Total Pagado: $" + this.totalPagado);
+        System.out.println(FormateadorBoleto.generarTextoBoleto(this));
     }
 }

@@ -1,19 +1,21 @@
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Fachada (Facade) que coordina los submódulos del sistema:
+ * ServicioAutenticacion, GestorCines, CatalogoPeliculas y GestorVentas.
+ */
 public class Sistema {
-    private Map<String, Cine> cines;
-    private Map<String, Pelicula> catalogoPeliculas;
-    private List<Boleto> boletosVendidos;
-    private Map<String, Administrador> administradores;
+    private ServicioAutenticacion servicioAuth;
+    private GestorCines gestorCines;
+    private CatalogoPeliculas catalogoPeliculas;
+    private GestorVentas gestorVentas;
 
     public Sistema() {
-        this.cines = new HashMap<>();
-        this.catalogoPeliculas = new HashMap<>();
-        this.boletosVendidos = new ArrayList<>();
-        this.administradores = new HashMap<>();
+        this.servicioAuth = new ServicioAutenticacion();
+        this.gestorCines = new GestorCines();
+        this.catalogoPeliculas = new CatalogoPeliculas();
+        this.gestorVentas = new GestorVentas();
     }
 
     public boolean inicia() {
@@ -21,168 +23,95 @@ public class Sistema {
         return true;
     }
 
+    // --- Submódulos ---
+    public ServicioAutenticacion getServicioAuth() {
+        return this.servicioAuth;
+    }
+
+    public GestorCines getGestorCines() {
+        return this.gestorCines;
+    }
+
+    public CatalogoPeliculas getModuloPeliculas() {
+        return this.catalogoPeliculas;
+    }
+
+    public GestorVentas getGestorVentas() {
+        return this.gestorVentas;
+    }
+
+    // --- Delegación a ServicioAutenticacion ---
     public Map<String, Administrador> getAdministradores() {
-        return administradores;
+        return this.servicioAuth.getAdministradores();
     }
 
     public void registrarAdministrador(Administrador admin) {
-        if (admin != null) {
-            this.administradores.put(admin.getNombre().toLowerCase(), admin);
-        }
+        this.servicioAuth.registrarAdministrador(admin);
     }
 
     public Administrador autenticarAdmin(String nombre, String pin) {
-        if (nombre == null || pin == null) return null;
-        Administrador admin = this.administradores.get(nombre.trim().toLowerCase());
-        if (admin != null && admin.validarPin(pin.trim())) {
-            return admin;
-        }
-        return null;
+        return this.servicioAuth.autenticarAdmin(nombre, pin);
     }
 
+    // --- Delegación a GestorCines ---
     public Map<String, Cine> getCines() {
-        return cines;
+        return this.gestorCines.getCines();
     }
 
     public void setCines(Map<String, Cine> cines) {
-        this.cines = cines;
-    }
-
-    public Map<String, Pelicula> getCatalogoPeliculas() {
-        return catalogoPeliculas;
-    }
-
-    public void setCatalogoPeliculas(Map<String, Pelicula> catalogoPeliculas) {
-        this.catalogoPeliculas = catalogoPeliculas;
-    }
-
-    public List<Boleto> getBoletosVendidos() {
-        return boletosVendidos;
-    }
-
-    public void setBoletosVendidos(List<Boleto> boletosVendidos) {
-        this.boletosVendidos = boletosVendidos;
+        this.gestorCines.setCines(cines);
     }
 
     public void agregaCine(Cine cineNuevo) {
-        if (cineNuevo != null) {
-            this.cines.put(cineNuevo.getNombreCine(), cineNuevo);
-        }
+        this.gestorCines.agregaCine(cineNuevo);
     }
 
     public Cine obtenerCine(String nombreCine) throws EntidadNoEncontradaException {
-        if (nombreCine == null || nombreCine.trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre del cine no puede estar vacío.");
-        }
-        if (this.cines == null) {
-            throw new EntidadNoEncontradaException("El catálogo de cines está vacío.");
-        }
-        String busqueda = nombreCine.trim().toLowerCase();
-
-        // 1. Coincidencia exacta
-        for (Cine c : this.cines.values()) {
-            if (c.getNombreCine().equalsIgnoreCase(busqueda)) {
-                return c;
-            }
-        }
-        // 2. Coincidencia parcial
-        for (Cine c : this.cines.values()) {
-            if (c.getNombreCine().toLowerCase().contains(busqueda)) {
-                return c;
-            }
-        }
-        throw new EntidadNoEncontradaException("El cine '" + nombreCine + "' no existe en el sistema.");
+        return this.gestorCines.obtenerCine(nombreCine);
     }
 
     public boolean eliminarCine(String nombreCine) throws EntidadNoEncontradaException {
-        Cine cine = obtenerCine(nombreCine); // Si no existe, lanza EntidadNoEncontradaException
-        this.cines.remove(cine.getNombreCine());
-        return true;
+        return this.gestorCines.eliminarCine(nombreCine);
     }
 
     public boolean modificarCine(String nombreActual, Cine cineActualizado) throws EntidadNoEncontradaException {
-        Cine cine = obtenerCine(nombreActual);
-        if (cineActualizado == null) {
-            throw new IllegalArgumentException("El cine actualizado no puede ser nulo.");
-        }
-        this.cines.remove(cine.getNombreCine());
-        this.cines.put(cineActualizado.getNombreCine(), cineActualizado);
-        return true;
+        return this.gestorCines.modificarCine(nombreActual, cineActualizado);
+    }
+
+    // --- Delegación a CatalogoPeliculas ---
+    public Map<String, Pelicula> getCatalogoPeliculas() {
+        return this.catalogoPeliculas.getCatalogo();
+    }
+
+    public void setCatalogoPeliculas(Map<String, Pelicula> catalogoPeliculas) {
+        this.catalogoPeliculas.setCatalogo(catalogoPeliculas);
     }
 
     public void agregarPelicula(Pelicula nuevaPelicula) {
-        if (nuevaPelicula != null) {
-            this.catalogoPeliculas.put(nuevaPelicula.getTitulo(), nuevaPelicula);
-        }
+        this.catalogoPeliculas.agregarPelicula(nuevaPelicula);
     }
 
     public Pelicula obtenerPelicula(String titulo) throws EntidadNoEncontradaException {
-        if (titulo == null || titulo.trim().isEmpty()) {
-            throw new IllegalArgumentException("El título de la película no puede estar vacío.");
-        }
-        if (this.catalogoPeliculas == null) {
-            throw new EntidadNoEncontradaException("El catálogo de películas está vacío.");
-        }
-        String busqueda = titulo.trim().toLowerCase();
-
-        for (Pelicula p : this.catalogoPeliculas.values()) {
-            if (p.getTitulo().equalsIgnoreCase(busqueda)) {
-                return p;
-            }
-        }
-        for (Pelicula p : this.catalogoPeliculas.values()) {
-            if (p.getTitulo().toLowerCase().contains(busqueda)) {
-                return p;
-            }
-        }
-        throw new EntidadNoEncontradaException("La película '" + titulo + "' no fue encontrada en el catálogo.");
+        return this.catalogoPeliculas.obtenerPelicula(titulo);
     }
 
     public boolean eliminarPelicula(String titulo) throws EntidadNoEncontradaException {
-        Pelicula p = obtenerPelicula(titulo); // Lanza EntidadNoEncontradaException si no existe
-        this.catalogoPeliculas.remove(p.getTitulo());
-        return true;
+        return this.catalogoPeliculas.eliminarPelicula(titulo);
     }
 
     public boolean modificarPelicula(String tituloActual, Pelicula modificacion) throws EntidadNoEncontradaException {
-        Pelicula p = obtenerPelicula(tituloActual);
-        if (modificacion == null) {
-            throw new IllegalArgumentException("La película modificada no puede ser nula.");
-        }
-        this.catalogoPeliculas.remove(p.getTitulo());
-        this.catalogoPeliculas.put(modificacion.getTitulo(), modificacion);
-        return true;
+        return this.catalogoPeliculas.modificarPelicula(tituloActual, modificacion);
     }
 
     public List<Pelicula> buscarPeliculasPorActor(String actorBuscado) {
-        List<Pelicula> encontradas = new ArrayList<>();
-        if (this.catalogoPeliculas != null) {
-            for (Pelicula p : this.catalogoPeliculas.values()) {
-                if (p.getActores() != null) {
-                    for (String actor : p.getActores()) {
-                        if (actor.toLowerCase().contains(actorBuscado.toLowerCase())) {
-                            encontradas.add(p);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return encontradas;
+        return this.catalogoPeliculas.buscarPeliculasPorActor(actorBuscado);
     }
 
     public List<Pelicula> buscarPeliculasPorClasificacion(String clasificacion) {
-        List<Pelicula> encontradas = new ArrayList<>();
-        if (this.catalogoPeliculas != null) {
-            for (Pelicula p : this.catalogoPeliculas.values()) {
-                if (p.getClasificacion().equalsIgnoreCase(clasificacion)) {
-                    encontradas.add(p);
-                }
-            }
-        }
-        return encontradas;
+        return this.catalogoPeliculas.buscarPeliculasPorClasificacion(clasificacion);
     }
 
+    // --- Delegación de Funciones en Salas ---
     public boolean programarFuncion(String idCine, String idSala, Funcion nuevaFuncion)
             throws EntidadNoEncontradaException, ConflictoHorarioException {
         Cine cine = this.obtenerCine(idCine);
@@ -212,9 +141,16 @@ public class Sistema {
         return cine.cancelarFuncion(idSala, funcionACancelar);
     }
 
+    // --- Delegación a GestorVentas ---
+    public List<Boleto> getBoletosVendidos() {
+        return this.gestorVentas.getBoletosVendidos();
+    }
+
+    public void setBoletosVendidos(List<Boleto> boletosVendidos) {
+        this.gestorVentas.setBoletosVendidos(boletosVendidos);
+    }
+
     public void registrarBoleto(Boleto boleto) {
-        if (boleto != null) {
-            this.boletosVendidos.add(boleto);
-        }
+        this.gestorVentas.registrarBoleto(boleto);
     }
 }

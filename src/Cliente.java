@@ -1,4 +1,3 @@
-import java.util.Iterator;
 import java.util.List;
 
 public class Cliente extends Usuario {
@@ -7,38 +6,21 @@ public class Cliente extends Usuario {
         super(nombre);
     }
 
+    /**
+     * Mantiene compatibilidad con el UML original delegando la venta a GestorVentas.
+     */
     public Boleto comprarBoleto(Funcion funcion, String idSala, List<Asiento> seleccion, MetodoDePago metodoPago)
             throws AsientoOcupadoException {
-        if (funcion == null || seleccion == null || seleccion.isEmpty() || metodoPago == null) {
-            System.out.println("Datos de compra incompletos.");
-            return null;
-        }
+        GestorVentas gestor = new GestorVentas();
+        return gestor.realizarVenta(this, funcion, idSala, seleccion, metodoPago);
+    }
 
-        // Calcular total recorriendo con iterador
-        double total = 0.0;
-        Iterator<Asiento> itPrecio = seleccion.iterator();
-        while (itPrecio.hasNext()) {
-            Asiento a = itPrecio.next();
-            total = total + a.getPrecio();
-        }
-
-        boolean pagoAprobado = metodoPago.procesarPago(total);
-        if (!pagoAprobado) {
-            System.out.println("El pago no pudo ser procesado.");
-            return null;
-        }
-
-        // marcar asientos como vendidos (lanza AsientoOcupadoException si alguno ya lo está)
-        Iterator<Asiento> itVender = seleccion.iterator();
-        while (itVender.hasNext()) {
-            Asiento a = itVender.next();
-            a.vender(); // throws AsientoOcupadoException
-        }
-
-        // Crear y retona el boleto
-        Boleto nuevoBoleto = new Boleto(funcion.getPeliculaProyectada(), idSala, funcion, seleccion, metodoPago);
-        nuevoBoleto.setTotalPagado(total);
-        System.out.println("Compra exitosa para el cliente " + this.nombre);
-        return nuevoBoleto;
+    /**
+     * Permite comprar usando directamente el GestorVentas del sistema para registrar el historial.
+     */
+    public Boleto comprarBoleto(Funcion funcion, String idSala, List<Asiento> seleccion,
+                                MetodoDePago metodoPago, GestorVentas gestorVentas)
+            throws AsientoOcupadoException {
+        return gestorVentas.realizarVenta(this, funcion, idSala, seleccion, metodoPago);
     }
 }
